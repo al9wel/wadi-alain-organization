@@ -4,7 +4,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Unauthorized } from "@/app/pages/Unauthorized";
 
 export function ProtectedRoute({ allowedRoles }: { allowedRoles?: readonly string[] }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, mustChangePassword } = useAuth();
+
+  // If user is required to change password first, redirect to change password route
+  if (mustChangePassword) {
+    return <Navigate to={ROUTES.PUBLIC.CHANGE_PASSWORD} replace />;
+  }
 
   if (!isAuthenticated || !user) {
     return <Navigate to={ROUTES.PUBLIC.AUTH} replace />;
@@ -18,9 +23,9 @@ export function ProtectedRoute({ allowedRoles }: { allowedRoles?: readonly strin
 }
 
 export function PublicRoute() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, mustChangePassword } = useAuth();
 
-  if (isAuthenticated) {
+  if (isAuthenticated && !mustChangePassword) {
     return <Navigate to={ROUTES.DASHBOARD.ROOT} replace />;
   }
 

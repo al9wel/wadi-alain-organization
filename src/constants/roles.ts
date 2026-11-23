@@ -1,3 +1,7 @@
+import type { Role } from "@/types/role.types";
+
+export type { Role };
+
 /**
  * System roles definition.
  */
@@ -6,9 +10,7 @@ export const ROLES = {
   MANAGER: "MANAGER",
   DATA_ENTRY: "DATA_ENTRY",
   USER: "USER",
-} as const;
-
-export type Role = (typeof ROLES)[keyof typeof ROLES];
+} as const satisfies Record<Role, Role>;
 
 export const ROLE_LABELS: Record<Role, string> = {
   [ROLES.ADMIN]: "مدير النظام",
