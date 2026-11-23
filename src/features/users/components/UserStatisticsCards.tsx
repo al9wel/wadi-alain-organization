@@ -2,13 +2,12 @@ import { Users, UserCheck, UserX, Building } from "lucide-react";
 import { KpiCard } from "@/components/common/KpiCard";
 import type { BackendUser } from "@/types";
 
-interface UserKpiCardsProps {
+interface UserStatisticsCardsProps {
   users?: BackendUser[];
-  total?: number;
-  isLoading?: boolean;
+  isPending?: boolean;
 }
 
-export function UserKpiCards({ users = [], total = 0, isLoading = false }: UserKpiCardsProps) {
+export function UserStatisticsCards({ users = [], isPending = false }: UserStatisticsCardsProps) {
   const activeCount = users.filter((u) => u.is_active).length;
   const inactiveCount = users.filter((u) => !u.is_active).length;
   const departmentsSet = new Set(users.map((u) => u.department?.id).filter(Boolean));
@@ -17,11 +16,11 @@ export function UserKpiCards({ users = [], total = 0, isLoading = false }: UserK
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" dir="rtl">
       <KpiCard
         title="إجمالي المستخدمين"
-        value={total || users.length}
+        value={users.length}
         subtitle="حسابات الموظفين المسجلة"
         icon={Users}
         variant="navy"
-        isLoading={isLoading}
+        isLoading={isPending}
       />
       <KpiCard
         title="المستخدمون النشطون"
@@ -29,7 +28,7 @@ export function UserKpiCards({ users = [], total = 0, isLoading = false }: UserK
         subtitle="حسابات مفعلة وتملك حق الدخول"
         icon={UserCheck}
         variant="success"
-        isLoading={isLoading}
+        isLoading={isPending}
       />
       <KpiCard
         title="الحسابات الموقوفة"
@@ -37,7 +36,7 @@ export function UserKpiCards({ users = [], total = 0, isLoading = false }: UserK
         subtitle="معطلة مؤقتاً ومحفوظة سجلاتها"
         icon={UserX}
         variant="warning"
-        isLoading={isLoading}
+        isLoading={isPending}
       />
       <KpiCard
         title="الأقسام المربوطة"
@@ -45,7 +44,7 @@ export function UserKpiCards({ users = [], total = 0, isLoading = false }: UserK
         subtitle="أقسام ينتمي إليها موظفون"
         icon={Building}
         variant="gold"
-        isLoading={isLoading}
+        isLoading={isPending}
       />
     </div>
   );

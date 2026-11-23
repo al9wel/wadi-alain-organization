@@ -1,189 +1,228 @@
-import { useState, useMemo } from "react";
-import type { ColumnDef } from "@tanstack/react-table";
-import { DataTable } from "@/components/ui/data-table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useDepartments } from "../hooks/useDepartments";
-import { DepartmentsTableSkeleton } from "./DepartmentsTableSkeleton";
-import { DepartmentRowCard } from "./DepartmentRowCard";
-import { CreateDepartmentDialog } from "./CreateDepartmentDialog";
+import { useState } from "react";
+import { Building2, Calendar, CheckCircle2, FolderSearch, Hash, PauseCircle } from "lucide-react";
 import type { Department, DepartmentStats } from "@/types";
+import { DepartmentActions } from "./DepartmentActions";
 import { cn } from "@/lib/utils";
 
-type DepartmentStatusTab = "all" | "active" | "inactive";
-type DepartmentSortOption = "name" | "newest" | "oldest" | "status";
+type StatusTab = "all" | "active" | "inactive";
 
 interface DepartmentsTableProps {
-  search?: string;
+  departments: Department[];
   stats?: DepartmentStats;
 }
 
-const DEPARTMENT_COLUMNS: ColumnDef<Department>[] = [
-  { accessorKey: "name", header: "القسم" },
-  { accessorKey: "is_active", header: "الحالة" },
-  { accessorKey: "created_at", header: "تاريخ الإنشاء" },
-];
+export const DepartmentsTable = ({ departments, stats }: DepartmentsTableProps) => {
+  const [status, setStatus] = useState<StatusTab>("all");
 
-export function DepartmentsTable({ search = "", stats }: DepartmentsTableProps) {
-  const [status, setStatus] = useState<DepartmentStatusTab>("all");
-  const [sortBy, setSortBy] = useState<DepartmentSortOption>("name");
-  const [pageState, setPageState] = useState<{ search: string; page: number }>({
-    search,
-    page: 1,
-  });
-  const page = pageState.search === search ? pageState.page : 1;
-  const setPage = (newPage: number) => setPageState({ search, page: newPage });
-
-  const {
-    data: deptsData,
-    isLoading,
-    isFetching,
-    isError,
-    error,
-    refetch,
-  } = useDepartments({
-    page,
-    per_page: 10,
-    status,
-    search: search ? search.trim() : undefined,
+  const filtered = departments.filter((dept) => {
+    if (status === "active") return dept.is_active;
+    if (status === "inactive") return !dept.is_active;
+    return true;
   });
 
-  const sortedDepartments = useMemo(() => {
-    const items = [...(deptsData?.data ?? [])];
-    switch (sortBy) {
-      case "name":
-        return items.sort((a, b) => a.name.localeCompare(b.name, "ar"));
-      case "newest":
-        return items.sort(
-          (a, b) =>
-            new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime()
-        );
-      case "oldest":
-        return items.sort(
-          (a, b) =>
-            new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime()
-        );
-      case "status":
-        return items.sort((a, b) => Number(b.is_active) - Number(a.is_active));
-      default:
-        return items;
-    }
-  }, [deptsData?.data, sortBy]);
-
-  const meta = deptsData?.meta;
-
-  const handleTabChange = (newStatus: DepartmentStatusTab) => {
-    setStatus(newStatus);
-    setPage(1);
-  };
+  const totalCount = stats?.departments_count ?? departments.length;
+  const activeCount = stats?.active_departments_count ?? departments.filter((d) => d.is_active).length;
+  const inactiveCount =
+    stats?.inactive_departments_count ?? departments.filter((d) => !d.is_active).length;
 
   return (
-    <div className="space-y-4" dir="rtl">
-      <DataTable
-        columns={DEPARTMENT_COLUMNS}
-        data={sortedDepartments}
-        isLoading={isLoading}
-        isFetching={isFetching}
-        isError={isError}
-        errorMessage={error?.message}
-        onRetry={() => refetch()}
-        renderSkeleton={() => <DepartmentsTableSkeleton />}
-        toolbar={
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            {/* Segmented Status Tabs */}
-            <div className="inline-flex items-center gap-1 p-1 bg-[#f3f3f6] dark:bg-muted/50 rounded-xl shrink-0 self-start sm:self-auto">
-              <button
-                type="button"
-                onClick={() => handleTabChange("all")}
-                className={cn(
-                  "px-4 py-1.5 rounded-lg text-xs transition-all cursor-pointer",
-                  status === "all"
-                    ? "bg-card text-primary font-extrabold shadow-xs"
-                    : "text-muted-foreground hover:text-foreground font-semibold"
-                )}
-              >
-                الكل {stats ? `(${stats.departments_count})` : ""}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleTabChange("active")}
-                className={cn(
-                  "px-4 py-1.5 rounded-lg text-xs transition-all cursor-pointer",
-                  status === "active"
-                    ? "bg-card text-primary font-extrabold shadow-xs"
-                    : "text-muted-foreground hover:text-foreground font-semibold"
-                )}
-              >
-                نشطة {stats ? `(${stats.active_departments_count})` : ""}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleTabChange("inactive")}
-                className={cn(
-                  "px-4 py-1.5 rounded-lg text-xs transition-all cursor-pointer",
-                  status === "inactive"
-                    ? "bg-card text-primary font-extrabold shadow-xs"
-                    : "text-muted-foreground hover:text-foreground font-semibold"
-                )}
-              >
-                موقوفة {stats ? `(${stats.inactive_departments_count})` : ""}
-              </button>
-            </div>
+    <div
+      className="bg-card border border-border rounded-3xl overflow-hidden shadow-xs"
+      dir="rtl"
+    >
+      {/* Status Tabs Toolbar */}
+      <div className="p-4 sm:px-6 pt-5 pb-4 flex items-center justify-between">
+        <div className="inline-flex items-center gap-1 p-1 bg-[#f3f3f6] dark:bg-muted/50 rounded-xl">
+          <button
+            type="button"
+            onClick={() => setStatus("all")}
+            className={cn(
+              "px-4 py-1.5 rounded-lg text-xs transition-all cursor-pointer",
+              status === "all"
+                ? "bg-card text-primary font-extrabold shadow-xs"
+                : "text-muted-foreground hover:text-foreground font-semibold"
+            )}
+          >
+            الكل ({totalCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatus("active")}
+            className={cn(
+              "px-4 py-1.5 rounded-lg text-xs transition-all cursor-pointer",
+              status === "active"
+                ? "bg-card text-primary font-extrabold shadow-xs"
+                : "text-muted-foreground hover:text-foreground font-semibold"
+            )}
+          >
+            نشطة ({activeCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatus("inactive")}
+            className={cn(
+              "px-4 py-1.5 rounded-lg text-xs transition-all cursor-pointer",
+              status === "inactive"
+                ? "bg-card text-primary font-extrabold shadow-xs"
+                : "text-muted-foreground hover:text-foreground font-semibold"
+            )}
+          >
+            موقوفة ({inactiveCount})
+          </button>
+        </div>
+      </div>
 
-            {/* Sort Dropdown */}
-            <div className="w-full sm:w-auto shrink-0">
-              <Select
-                value={sortBy}
-                onValueChange={(value) => setSortBy(value as DepartmentSortOption)}
-              >
-                <SelectTrigger className="h-10 min-w-[140px] rounded-xl bg-card border-border text-xs font-bold shadow-none">
-                  <SelectValue placeholder="ترتيب: الاسم" />
-                </SelectTrigger>
-                <SelectContent dir="rtl">
-                  <SelectItem value="name">ترتيب: الاسم</SelectItem>
-                  <SelectItem value="newest">ترتيب: الأحدث</SelectItem>
-                  <SelectItem value="oldest">ترتيب: الأقدم</SelectItem>
-                  <SelectItem value="status">ترتيب: الحالة</SelectItem>
-                </SelectContent>
-              </Select>
+      {/* Figma Card Rows List */}
+      <div className="px-4 sm:px-6 pb-5 pt-1 space-y-3">
+        {filtered.length === 0 ? (
+          <div className="py-16 px-6 flex flex-col items-center justify-center text-center space-y-3">
+            <div className="size-14 rounded-2xl bg-muted/40 flex items-center justify-center text-muted-foreground">
+              <FolderSearch className="size-7 stroke-[1.5]" />
             </div>
+            <p className="text-sm font-bold text-muted-foreground">
+              لا توجد أقسام مضافة حالياً
+            </p>
           </div>
-        }
-        renderRow={(row) => <DepartmentRowCard department={row.original} />}
-        emptyTitle={
-          search || status !== "all"
-            ? "لا توجد نتائج مطابقة"
-            : "لم يتم العثور على أقسام"
-        }
-        emptyMessage={
-          search || status !== "all"
-            ? "لا توجد أقسام تطابق معايير البحث والفلترة المحددة."
-            : "لم يتم إنشاء أي أقسام في المؤسسة بعد. اضغط على زر الإنشاء لإضافة أول قسم."
-        }
-        emptyAction={
-          <CreateDepartmentDialog
-            triggerLabel="إنشاء قسم جديد"
-            triggerClassName="h-10 px-4 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-xs flex items-center gap-2 cursor-pointer"
-          />
-        }
-        itemLabel="أقسام"
-        pagination={
-          meta
-            ? {
-                page: meta.current_page,
-                pageSize: meta.per_page,
-                total: meta.total,
-                totalPages: meta.last_page,
-                onPageChange: (newPage) => setPage(newPage),
-              }
-            : undefined
-        }
-      />
+        ) : (
+          filtered.map((dept) => {
+            const isActive = dept.is_active;
+            const formattedDate = dept.created_at
+              ? new Date(dept.created_at).toLocaleDateString("ar-YE", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })
+              : "—";
+
+            return (
+              <div
+                key={dept.id}
+                className={cn(
+                  "rounded-[20px] border px-4 py-4 sm:px-5 sm:py-4 transition-all duration-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4",
+                  isActive
+                    ? "bg-card border-border hover:border-[#c8c5ba] dark:hover:border-border hover:shadow-xs"
+                    : "bg-[#f4f5f8] dark:bg-muted/25 border-border/80"
+                )}
+              >
+                <div className="flex items-center gap-4 min-w-0 flex-1">
+                  <div
+                    className={cn(
+                      "w-[72px] h-[68px] sm:w-[82px] sm:h-[76px] rounded-2xl flex items-center justify-center shrink-0 transition-colors",
+                      isActive
+                        ? "bg-[#f2f3f8] dark:bg-muted/50"
+                        : "bg-[#e5e2d8] dark:bg-muted/70"
+                    )}
+                  >
+                    <div className="size-11 rounded-full bg-white dark:bg-card flex items-center justify-center shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+                      <Building2
+                        className={cn(
+                          "size-5 transition-colors",
+                          isActive ? "text-primary" : "text-muted-foreground"
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <div className="flex items-center flex-wrap gap-2.5">
+                      <h3
+                        className={cn(
+                          "text-base sm:text-[17px] font-extrabold tracking-tight truncate",
+                          isActive ? "text-foreground" : "text-muted-foreground"
+                        )}
+                      >
+                        {dept.name}
+                      </h3>
+
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold",
+                          isActive
+                            ? "bg-[#e8f5ee] dark:bg-emerald-950/40 text-[#1b7a4b] dark:text-emerald-400"
+                            : "bg-[#fcebea] dark:bg-red-950/40 text-[#c23b2b] dark:text-red-400"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "size-1.5 rounded-full shrink-0",
+                            isActive
+                              ? "bg-[#1b7a4b] dark:bg-emerald-400"
+                              : "bg-[#c23b2b] dark:bg-red-400"
+                          )}
+                        />
+                        {isActive ? "نشط" : "موقوف"}
+                      </span>
+                    </div>
+
+                    <p
+                      className={cn(
+                        "text-xs sm:text-[13px] line-clamp-1",
+                        isActive ? "text-muted-foreground" : "text-muted-foreground/80"
+                      )}
+                    >
+                      {dept.description || "لا يوجد وصف مسجل لهذا القسم"}
+                    </p>
+
+                    <div className="flex items-center flex-wrap gap-2 pt-0.5">
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold",
+                          isActive
+                            ? "bg-[#f8f7f3] dark:bg-muted/30 text-foreground/80"
+                            : "bg-transparent text-muted-foreground px-1.5"
+                        )}
+                      >
+                        <Hash
+                          className={cn(
+                            "size-3.5 shrink-0",
+                            isActive ? "text-[#cd9933]" : "text-muted-foreground/70"
+                          )}
+                        />
+                        <span>قسم #{dept.id}</span>
+                      </span>
+
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold",
+                          isActive
+                            ? "bg-[#f8f7f3] dark:bg-muted/30 text-foreground/80"
+                            : "bg-transparent text-muted-foreground px-1.5"
+                        )}
+                      >
+                        <Calendar
+                          className={cn(
+                            "size-3.5 shrink-0",
+                            isActive ? "text-[#cd9933]" : "text-muted-foreground/70"
+                          )}
+                        />
+                        <span>{formattedDate}</span>
+                      </span>
+
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold",
+                          isActive
+                            ? "bg-[#f8f7f3] dark:bg-muted/30 text-foreground/80"
+                            : "bg-transparent text-muted-foreground px-1.5"
+                        )}
+                      >
+                        {isActive ? (
+                          <CheckCircle2 className="size-3.5 shrink-0 text-[#cd9933]" />
+                        ) : (
+                          <PauseCircle className="size-3.5 shrink-0 text-muted-foreground/70" />
+                        )}
+                        <span>{isActive ? "العمليات مفعّلة" : "العمليات موقفة"}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <DepartmentActions department={dept} />
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
-}
+};

@@ -1,11 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { userApi } from "../api/userApi";
-import type { UserFilterParams } from "@/types";
 
-export const useUsers = (params?: UserFilterParams) => {
+export const useUsers = () => {
   return useQuery({
-    queryKey: ["users", params],
-    queryFn: () => userApi.getUsers(params),
-    staleTime: 2 * 60 * 1000,
+    queryKey: ["users"],
+    queryFn: () => userApi.getUsers({ per_page: 100 }),
   });
 };

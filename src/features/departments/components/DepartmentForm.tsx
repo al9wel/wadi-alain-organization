@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { ShieldCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,11 +15,22 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  departmentSchema,
-  type DepartmentFormValues,
-} from "../schemas/department.schemas";
 import type { CreateDepartmentRequest, Department } from "@/types";
+
+const departmentSchema = z.object({
+  name: z
+    .string()
+    .min(1, "اسم القسم مطلوب")
+    .max(255, "اسم القسم يجب ألا يتجاوز 255 حرفاً"),
+  description: z
+    .string()
+    .max(1000, "الوصف يجب ألا يتجاوز 1000 حرف")
+    .optional()
+    .or(z.literal("")),
+  is_active: z.boolean(),
+});
+
+type DepartmentFormValues = z.infer<typeof departmentSchema>;
 
 interface DepartmentFormProps {
   initialData?: Department | null;
@@ -27,12 +39,12 @@ interface DepartmentFormProps {
   isLoading?: boolean;
 }
 
-export function DepartmentForm({
+export const DepartmentForm = ({
   initialData,
   onSubmit,
   onCancel,
   isLoading = false,
-}: DepartmentFormProps) {
+}: DepartmentFormProps) => {
   const form = useForm<DepartmentFormValues>({
     resolver: zodResolver(departmentSchema),
     defaultValues: {
@@ -69,7 +81,6 @@ export function DepartmentForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4 pt-2" dir="rtl">
-        {/* Department Name */}
         <FormField
           control={form.control}
           name="name"
@@ -91,7 +102,6 @@ export function DepartmentForm({
           )}
         />
 
-        {/* Department Description */}
         <FormField
           control={form.control}
           name="description"
@@ -114,7 +124,6 @@ export function DepartmentForm({
           )}
         />
 
-        {/* Activate Row */}
         <FormField
           control={form.control}
           name="is_active"
@@ -144,7 +153,6 @@ export function DepartmentForm({
           )}
         />
 
-        {/* Actions */}
         <div className="flex items-center justify-end gap-3 pt-3">
           <Button
             type="button"
@@ -173,4 +181,4 @@ export function DepartmentForm({
       </form>
     </Form>
   );
-}
+};

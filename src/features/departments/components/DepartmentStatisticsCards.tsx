@@ -2,21 +2,26 @@ import { Building, CheckCircle2, PauseCircle } from "lucide-react";
 import { KpiCard } from "@/components/common/KpiCard";
 import type { DepartmentStats } from "@/types";
 
-interface DepartmentKpiCardsProps {
+interface DepartmentStatisticsCardsProps {
   stats?: DepartmentStats;
-  isLoading?: boolean;
+  fallbackTotal?: number;
+  isPending?: boolean;
 }
 
-export function DepartmentKpiCards({ stats, isLoading = false }: DepartmentKpiCardsProps) {
+export function DepartmentStatisticsCards({
+  stats,
+  fallbackTotal = 0,
+  isPending = false,
+}: DepartmentStatisticsCardsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4" dir="rtl">
       <KpiCard
         title="إجمالي الأقسام"
-        value={stats?.departments_count ?? 0}
+        value={stats?.departments_count ?? fallbackTotal}
         subtitle="كافة أقسام المؤسسة المعتمدة"
         icon={Building}
         variant="navy"
-        isLoading={isLoading}
+        isLoading={isPending}
       />
       <KpiCard
         title="الأقسام النشطة"
@@ -24,7 +29,7 @@ export function DepartmentKpiCards({ stats, isLoading = false }: DepartmentKpiCa
         subtitle="تعمل بكامل الصلاحيات والعمليات"
         icon={CheckCircle2}
         variant="success"
-        isLoading={isLoading}
+        isLoading={isPending}
       />
       <KpiCard
         title="الأقسام الموقوفة"
@@ -32,7 +37,7 @@ export function DepartmentKpiCards({ stats, isLoading = false }: DepartmentKpiCa
         subtitle="معطلة مؤقتاً ومحفوظة ملفاتها"
         icon={PauseCircle}
         variant="warning"
-        isLoading={isLoading}
+        isLoading={isPending}
       />
     </div>
   );

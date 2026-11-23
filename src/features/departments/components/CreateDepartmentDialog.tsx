@@ -1,41 +1,30 @@
 import { useState } from "react";
 import { Building, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { usePermission } from "@/hooks/usePermission";
 import { ACTIONS } from "@/constants/permissions";
+import { usePermission } from "@/hooks/usePermission";
 import { useCreateDepartment } from "../hooks/useCreateDepartment";
 import { DepartmentForm } from "./DepartmentForm";
 import type { CreateDepartmentRequest } from "@/types";
 
-interface CreateDepartmentDialogProps {
-  triggerLabel?: string;
-  triggerClassName?: string;
-}
-
-export function CreateDepartmentDialog({
-  triggerLabel = "إنشاء قسم جديد",
-  triggerClassName,
-}: CreateDepartmentDialogProps) {
+export const CreateDepartmentDialog = () => {
   const [open, setOpen] = useState(false);
-
   const canCreate = usePermission(ACTIONS.CREATE_DEPARTMENT);
   const { mutate: createDept, isPending } = useCreateDepartment();
 
-  if (!canCreate) return null;
-
   const handleSubmit = (data: CreateDepartmentRequest) => {
     createDept(data, {
-      onSuccess: (response) => {
-        toast.success(response.message || "تم إنشاء القسم بنجاح");
+      onSuccess: (res) => {
+        toast.success(res.message || "تم إنشاء القسم بنجاح");
         setOpen(false);
       },
       onError: (error: Error) => {
@@ -44,21 +33,19 @@ export function CreateDepartmentDialog({
     });
   };
 
+  if (!canCreate) return null;
+
   return (
     <Dialog open={open} onOpenChange={(next) => !isPending && setOpen(next)}>
       <DialogTrigger asChild>
         <Button
           type="button"
-          className={
-            triggerClassName ||
-            "h-11 px-5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-xs sm:text-sm shadow-xs flex items-center justify-center gap-2 shrink-0 cursor-pointer"
-          }
+          className="h-11 px-5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-xs sm:text-sm shadow-xs flex items-center justify-center gap-2 shrink-0 cursor-pointer"
         >
           <Plus className="size-4" />
-          <span>{triggerLabel}</span>
+          <span>إنشاء قسم جديد</span>
         </Button>
       </DialogTrigger>
-
       <DialogContent className="max-w-[560px] p-6 sm:p-8 rounded-3xl" dir="rtl">
         <DialogHeader className="space-y-3 text-right">
           <div className="flex items-center gap-3.5">
@@ -75,7 +62,6 @@ export function CreateDepartmentDialog({
             </div>
           </div>
         </DialogHeader>
-
         <DepartmentForm
           onSubmit={handleSubmit}
           onCancel={() => setOpen(false)}
@@ -84,4 +70,4 @@ export function CreateDepartmentDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};

@@ -2,13 +2,16 @@ import { useState } from "react";
 import {
   ArrowLeft,
   Building,
+  Calendar,
   Eye,
+  Info,
   MoreHorizontal,
   Power,
   SquarePen,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
@@ -23,13 +26,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePermission } from "@/hooks/usePermission";
 import { ACTIONS } from "@/constants/permissions";
+import { usePermission } from "@/hooks/usePermission";
 import { useUpdateDepartment } from "../hooks/useUpdateDepartment";
 import { useActivateDepartment } from "../hooks/useActivateDepartment";
 import { useDeactivateDepartment } from "../hooks/useDeactivateDepartment";
 import { DepartmentForm } from "./DepartmentForm";
-import { DepartmentViewDialog } from "./DepartmentViewDialog";
 import type { CreateDepartmentRequest, Department } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +39,7 @@ interface DepartmentActionsProps {
   department: Department;
 }
 
-export function DepartmentActions({ department }: DepartmentActionsProps) {
+export const DepartmentActions = ({ department }: DepartmentActionsProps) => {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
@@ -52,21 +54,13 @@ export function DepartmentActions({ department }: DepartmentActionsProps) {
   const handleToggleStatus = () => {
     if (isActive) {
       deactivateDept(department.id, {
-        onSuccess: (response) => {
-          toast.success(response.message || "تم إيقاف القسم بنجاح");
-        },
-        onError: (error: Error) => {
-          toast.error(error.message || "تعذر إيقاف القسم");
-        },
+        onSuccess: (res) => toast.success(res.message || "تم إيقاف القسم بنجاح"),
+        onError: (err: Error) => toast.error(err.message || "تعذر إيقاف القسم"),
       });
     } else {
       activateDept(department.id, {
-        onSuccess: (response) => {
-          toast.success(response.message || "تم تفعيل القسم بنجاح");
-        },
-        onError: (error: Error) => {
-          toast.error(error.message || "تعذر تفعيل القسم");
-        },
+        onSuccess: (res) => toast.success(res.message || "تم تفعيل القسم بنجاح"),
+        onError: (err: Error) => toast.error(err.message || "تعذر تفعيل القسم"),
       });
     }
   };
@@ -75,12 +69,12 @@ export function DepartmentActions({ department }: DepartmentActionsProps) {
     updateDept(
       { id: department.id, data },
       {
-        onSuccess: (response) => {
-          toast.success(response.message || "تم تحديث بيانات القسم بنجاح");
+        onSuccess: (res) => {
+          toast.success(res.message || "تم تحديث بيانات القسم بنجاح");
           setIsEditOpen(false);
         },
-        onError: (error: Error) => {
-          toast.error(error.message || "تعذر تحديث بيانات القسم");
+        onError: (err: Error) => {
+          toast.error(err.message || "تعذر تحديث بيانات القسم");
         },
       }
     );
@@ -89,7 +83,6 @@ export function DepartmentActions({ department }: DepartmentActionsProps) {
   return (
     <>
       <div className="flex items-center flex-wrap sm:flex-nowrap gap-2.5 shrink-0 justify-end">
-        {/* Status Toggle Pill */}
         {canUpdate && (
           <div
             className={cn(
@@ -119,7 +112,6 @@ export function DepartmentActions({ department }: DepartmentActionsProps) {
           </div>
         )}
 
-        {/* Primary CTA Button: فتح القسم */}
         <Button
           type="button"
           onClick={() => setIsViewOpen(true)}
@@ -134,7 +126,6 @@ export function DepartmentActions({ department }: DepartmentActionsProps) {
           <ArrowLeft className="size-4" />
         </Button>
 
-        {/* Edit Icon Button */}
         {canUpdate && (
           <Button
             type="button"
@@ -148,7 +139,6 @@ export function DepartmentActions({ department }: DepartmentActionsProps) {
           </Button>
         )}
 
-        {/* More Menu Button */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -193,11 +183,73 @@ export function DepartmentActions({ department }: DepartmentActionsProps) {
       </div>
 
       {/* View Dialog */}
-      <DepartmentViewDialog
-        open={isViewOpen}
-        onOpenChange={setIsViewOpen}
-        department={department}
-      />
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent className="max-w-[480px] p-6 rounded-3xl" dir="rtl">
+          <DialogHeader className="text-right space-y-3">
+            <div className="flex items-center gap-3.5">
+              <div className="size-14 rounded-2xl bg-secondary flex items-center justify-center text-primary shrink-0">
+                <Building className="size-7" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-extrabold text-foreground">
+                  {department.name}
+                </DialogTitle>
+                <div className="mt-1">
+                  <Badge
+                    variant={isActive ? "outline" : "secondary"}
+                    className={
+                      isActive
+                        ? "border-emerald-500 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20"
+                        : "text-muted-foreground"
+                    }
+                  >
+                    {isActive ? "قسم نشط" : "قسم موقوف"}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-3 pt-3 border-t border-border/80">
+            <div className="grid grid-cols-1 gap-2.5 text-xs">
+              <div className="p-3.5 rounded-xl bg-muted/20 border border-border/60 space-y-1">
+                <span className="text-muted-foreground flex items-center gap-1.5 font-bold">
+                  <Info className="size-3.5" />
+                  الوصف
+                </span>
+                <p className="text-foreground leading-relaxed">
+                  {department.description || "لا يوجد وصف مسجل لهذا القسم."}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/20 border border-border/60">
+                <span className="text-muted-foreground flex items-center gap-1.5">
+                  <Calendar className="size-3.5" />
+                  تاريخ الإنشاء
+                </span>
+                <span className="font-bold text-foreground">
+                  {department.created_at
+                    ? new Date(department.created_at).toLocaleDateString("ar-YE", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "غير متوفر"}
+                </span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsViewOpen(false)}
+              className="w-full h-11 rounded-xl border-border font-bold text-xs mt-2 cursor-pointer"
+            >
+              إغلاق
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Dialog */}
       {canUpdate && (
@@ -230,4 +282,4 @@ export function DepartmentActions({ department }: DepartmentActionsProps) {
       )}
     </>
   );
-}
+};
