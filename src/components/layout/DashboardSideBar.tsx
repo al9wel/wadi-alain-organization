@@ -1,93 +1,263 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { Home, Settings, LogOut, Building2 } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import {
+  Home,
+  FolderLock,
+  Building,
+  Shield,
+  Users,
+  History,
+  Trash2,
+  Settings,
+  User as UserIcon,
+  LogOut,
+  Search,
+  Loader2,
+} from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useLogout } from "@/features/auth/hooks/useLogout";
+import {
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuBadge,
+} from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar-context";
+import logoImg from "@/assets/logo.png";
 
-const navItems = [
-  {
-    title: "الرئيسية",
-    path: ROUTES.DASHBOARD.ROOT,
-    icon: Home,
-    end: true,
-  },
-  {
-    title: "الإعدادات",
-    path: ROUTES.DASHBOARD.SETTINGS,
-    icon: Settings,
-    end: false,
-  },
-];
+interface NavItemConfig {
+  title: string;
+  path?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
+  isAvailable?: boolean;
+  end?: boolean;
+}
+
+interface NavGroup {
+  groupTitle: string;
+  items: NavItemConfig[];
+}
 
 export function DashboardSideBar() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const logoutMutation = useLogout();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   const handleLogout = () => {
-    logout();
-    toast.info("تم تسجيل الخروج بنجاح");
-    navigate(ROUTES.PUBLIC.ROOT, { replace: true });
+    logoutMutation.mutate();
   };
 
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
+  const navGroups: NavGroup[] = [
+    {
+      groupTitle: "القائمة الرئيسية",
+      items: [
+        {
+          title: "الرئيسية",
+          path: ROUTES.DASHBOARD.ROOT,
+          icon: Home,
+          isAvailable: true,
+          end: true,
+        },
+        {
+          title: "الأرشيف",
+          icon: FolderLock,
+          badge: "1,284",
+          isAvailable: false,
+        },
+        {
+          title: "الأقسام",
+          path: ROUTES.DASHBOARD.DEPARTMENTS,
+          icon: Building,
+          badge: "8",
+          isAvailable: true,
+        },
+        {
+          title: "الصلاحيات والأدوار",
+          icon: Shield,
+          isAvailable: false,
+        },
+      ],
+    },
+    {
+      groupTitle: "الإدارة والنظام",
+      items: [
+        {
+          title: "المستخدمون",
+          path: ROUTES.DASHBOARD.USERS,
+          icon: Users,
+          isAvailable: true,
+        },
+        {
+          title: "سجل النشاط",
+          icon: History,
+          isAvailable: false,
+        },
+        {
+          title: "سلة المحذوفات",
+          icon: Trash2,
+          badge: "3",
+          isAvailable: false,
+        },
+        {
+          title: "الإعدادات",
+          path: ROUTES.DASHBOARD.SETTINGS,
+          icon: Settings,
+          isAvailable: true,
+          end: false,
+        },
+      ],
+    },
+    {
+      groupTitle: "الحساب",
+      items: [
+        {
+          title: "الملف الشخصي",
+          icon: UserIcon,
+          isAvailable: false,
+        },
+      ],
+    },
+  ];
+
   return (
-    <aside className="w-64 border-l border-border bg-card flex flex-col justify-between shrink-0 min-h-screen">
-      <div>
-        <div className="flex h-16 items-center gap-3 border-b border-border px-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-black">
-            <Building2 className="h-5 w-5" />
+    <Sidebar side="right" collapsible="offcanvas" className="bg-card border-l border-border" dir="rtl">
+      {/* Brand Header */}
+      <SidebarHeader className="border-b border-border p-4">
+        <div className="flex items-center gap-3">
+          <div className="size-10 rounded-xl bg-surface border border-border flex items-center justify-center p-1 shadow-xs shrink-0">
+            <img
+              src={logoImg}
+              alt="شعار المؤسسة"
+              className="size-full object-contain"
+            />
           </div>
-          <span className="font-extrabold text-sm text-foreground">
-            مؤسسة وادي العين
-          </span>
+          <div className="flex flex-col text-right">
+            <span className="font-extrabold text-sm text-foreground leading-tight">
+              مؤسسة وادي العين
+            </span>
+            <span className="font-bold text-[11px] text-[#8f6b24] dark:text-[#e6cc99] leading-tight">
+              نظام الأرشفة والتنمية
+            </span>
+          </div>
         </div>
 
-        <nav className="p-4 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.end}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  }`
-                }
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span>{item.title}</span>
-              </NavLink>
-            );
-          })}
-        </nav>
-      </div>
+        {/* Search Shortcut Bar */}
+        <div className="mt-3">
+          <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/80 border border-border text-xs text-muted-foreground select-none">
+            <div className="flex items-center gap-2">
+              <Search className="size-3.5 text-muted-foreground" />
+              <span>بحث سريع في الأرشيف...</span>
+            </div>
+            <kbd className="px-1.5 py-0.5 rounded bg-card border border-border text-[10px] font-mono text-muted-foreground">
+              ⌘K
+            </kbd>
+          </div>
+        </div>
+      </SidebarHeader>
 
-      {/* User Footer */}
-      <div className="p-4 border-t border-border space-y-3">
-        <div className="flex items-center gap-3 px-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm">
+      {/* Navigation Content */}
+      <SidebarContent>
+        {navGroups.map((group) => (
+          <SidebarGroup key={group.groupTitle}>
+            <SidebarGroupLabel>{group.groupTitle}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+
+                  if (item.isAvailable && item.path) {
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <NavLink
+                          to={item.path}
+                          end={item.end}
+                          onClick={handleNavClick}
+                          className={({ isActive }) =>
+                            `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-colors w-full ${
+                              isActive
+                                ? "bg-primary text-primary-foreground shadow-xs"
+                                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                            }`
+                          }
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Icon className="size-4 shrink-0" />
+                            <span>{item.title}</span>
+                          </div>
+                          {item.badge && (
+                            <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
+                          )}
+                        </NavLink>
+                      </SidebarMenuItem>
+                    );
+                  }
+
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        disabled
+                        className="text-muted-foreground/60 cursor-not-allowed hover:bg-transparent"
+                        title="قريباً في التحديثات القادمة"
+                      >
+                        <Icon className="size-4 shrink-0 text-muted-foreground/50" />
+                        <span>{item.title}</span>
+                        {item.badge && (
+                          <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
+                        )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+      </SidebarContent>
+
+      {/* User Profile & Logout Footer */}
+      <SidebarFooter className="border-t border-border p-4 space-y-3 bg-card">
+        <div className="flex items-center gap-3 px-1">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-sm shadow-xs select-none">
             {user?.name?.charAt(0) || "م"}
           </div>
           <div className="truncate flex-1">
             <p className="text-sm font-bold text-foreground truncate">{user?.name || "مدير النظام"}</p>
-            <p className="text-xs text-muted-foreground font-medium">{user?.role || "ADMIN"}</p>
+            <p className="text-xs text-muted-foreground font-medium truncate">
+              {user?.department || user?.role || "ADMIN"}
+            </p>
           </div>
         </div>
 
         <Button
           variant="outline"
           size="sm"
-          className="w-full justify-center gap-2 text-destructive border-destructive/20 hover:bg-destructive/10"
+          disabled={logoutMutation.isPending}
+          className="w-full justify-center gap-2 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/40 hover:bg-rose-50 dark:hover:bg-rose-950/30 font-bold rounded-xl cursor-pointer"
           onClick={handleLogout}
         >
-          <LogOut className="h-4 w-4" />
+          {logoutMutation.isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <LogOut className="size-4" />
+          )}
           <span>تسجيل الخروج</span>
         </Button>
-      </div>
-    </aside>
+      </SidebarFooter>
+    </Sidebar>
   );
 }

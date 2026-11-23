@@ -3,8 +3,12 @@ import { ROUTES } from "@/constants/routes";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { LandingPage } from "@/features/landing/pages/LandingPage";
-import { AuthPage } from "@/features/auth/pages/AuthPage";
+import { LoginPage } from "@/features/auth/pages/LoginPage";
+import { ChangePasswordPage } from "@/features/auth/pages/ChangePasswordPage";
+import { PasswordChangedPage } from "@/features/auth/pages/PasswordChangedPage";
 import { MainPage } from "@/features/main/pages/MainPage";
+import { DepartmentsPage } from "@/features/departments/pages/DepartmentsPage";
+import { UsersPage } from "@/features/users/pages/UsersPage";
 import { SettingsPage } from "@/features/settings/pages/SettingsPage";
 import { Unauthorized } from "@/app/pages/Unauthorized";
 import { ErrorState } from "@/app/pages/ErrorState";
@@ -23,13 +27,21 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Auth Page (/auth)
+  // Auth Routes (/auth, /auth/change-password, /auth/password-changed)
   {
     element: <PublicRoute />,
     children: [
       {
         path: ROUTES.PUBLIC.AUTH,
-        element: <AuthPage />,
+        element: <LoginPage />,
+      },
+      {
+        path: ROUTES.PUBLIC.CHANGE_PASSWORD,
+        element: <ChangePasswordPage />,
+      },
+      {
+        path: ROUTES.PUBLIC.PASSWORD_CHANGED,
+        element: <PasswordChangedPage />,
       },
     ],
   },
@@ -53,6 +65,14 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <MainPage />,
+          },
+          {
+            path: ROUTES.DASHBOARD.DEPARTMENTS.split("/").pop(),
+            element: <DepartmentsPage />,
+          },
+          {
+            path: ROUTES.DASHBOARD.USERS.split("/").pop(),
+            element: <UsersPage />,
           },
           {
             path: ROUTES.DASHBOARD.SETTINGS.split("/").pop(),

@@ -4,71 +4,195 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* ── Dashboard & Global — Light Theme (Wadi Al-Ain Warm Emerald / Earth) ── */
-  --background: #f8faf9;
-  --foreground: oklch(0.18 0.02 160);
-  --card: #ffffff;
-  --card-foreground: oklch(0.18 0.02 160);
-  --popover: #ffffff;
-  --popover-foreground: oklch(0.18 0.02 160);
-  --primary: oklch(0.48 0.14 158);
-  --primary-hover: oklch(0.42 0.15 158);
-  --primary-foreground: #ffffff;
-  --secondary: #f0f5f2;
-  --secondary-foreground: oklch(0.25 0.03 160);
-  --muted: #f0f4f2;
-  --muted-foreground: oklch(0.48 0.03 160);
-  --accent: #e8f0ec;
-  --accent-foreground: oklch(0.25 0.03 160);
-  --destructive: oklch(0.55 0.2 28);
+  /* ── Color System — Light Theme (Figma Source of Truth) ── */
+  --bg-canvas: #f8f7f2;
+  --bg-surface: #ffffff;
+  --bg-surface-alt: #f7f7fa;
+  --bg-muted: #efeff4;
+  --bg-inverse: #020066;
+  --bg-disabled: #efeff4;
+
+  --text-primary: #20213a;
+  --text-secondary: #4b4d68;
+  --text-tertiary: #6e6e86;
+  --text-disabled: #9c9cb0;
+  --text-brand: #020066;
+  --text-accent: #8f6b24;
+  --text-link: #26267d;
+  --text-link-hover: #000042;
+  --text-inverse: #ffffff;
+
+  --brand-primary: #020066;
+  --brand-primary-hover: #26267d;
+  --brand-primary-pressed: #000042;
+  --brand-primary-subtle: #f2f2f7;
+  --brand-on-primary: #ffffff;
+
+  --brand-secondary: #cd9933;
+  --brand-secondary-hover: #ad822b;
+  --brand-secondary-pressed: #8f6b24;
+  --brand-secondary-subtle: #fbf7ef;
+  --brand-on-secondary: #000029;
+
+  --border-default: #e2e2ea;
+  --border-subtle: #e3e0d7;
+  --border-strong: #9c9cb0;
+  --border-brand: #020066;
+  --border-accent: #cd9933;
+  --border-focus: #cd9933;
+  --border-disabled: #e2e2ea;
+
+  --icon-primary: #232336;
+  --icon-secondary: #4b4d68;
+  --icon-brand: #020066;
+  --icon-accent: #ad822b;
+  --icon-disabled: #9c9cb0;
+  --icon-inverse: #ffffff;
+
+  --feedback-success-fg: #1f5c42;
+  --feedback-success-bg: #e8f3ee;
+  --feedback-success-border: #8ccbae;
+
+  --feedback-warning-fg: #8a4a12;
+  --feedback-warning-bg: #fbf1e6;
+  --feedback-warning-border: #ebb27a;
+
+  --feedback-error-fg: #8c2a22;
+  --feedback-error-bg: #faebe9;
+  --feedback-error-border: #e9a39c;
+
+  --feedback-info-fg: #1f4580;
+  --feedback-info-bg: #e9eff8;
+  --feedback-info-border: #9db9e3;
+
+  /* ── Semantic Aliases (Tailwind & Shadcn) ── */
+  --background: var(--bg-canvas);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--brand-primary);
+  --primary-hover: var(--brand-primary-hover);
+  --primary-foreground: var(--brand-on-primary);
+  --secondary: var(--brand-primary-subtle);
+  --secondary-foreground: var(--brand-primary);
+  --muted: var(--bg-muted);
+  --muted-foreground: var(--text-tertiary);
+  --accent: var(--brand-secondary-subtle);
+  --accent-foreground: var(--brand-secondary-pressed);
+  --destructive: var(--feedback-error-fg);
   --destructive-foreground: #ffffff;
-  --border: oklch(0.88 0.015 160);
-  --input: #ffffff;
-  --ring: oklch(0.48 0.14 158);
-  --radius: 0.75rem;
+  --border: var(--border-subtle);
+  --input: var(--bg-surface);
+  --ring: var(--brand-secondary);
+  --radius: 1rem;
 
   /* ── Sidebar Tokens ── */
-  --sidebar: #ffffff;
-  --sidebar-foreground: oklch(0.22 0.02 160);
-  --sidebar-primary: oklch(0.48 0.14 158);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f0f5f2;
-  --sidebar-accent-foreground: oklch(0.22 0.02 160);
-  --sidebar-border: oklch(0.9 0.015 160);
-  --sidebar-ring: oklch(0.48 0.14 158);
+  --sidebar: var(--bg-surface);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--brand-primary);
+  --sidebar-primary-foreground: var(--brand-on-primary);
+  --sidebar-accent: var(--brand-primary-subtle);
+  --sidebar-accent-foreground: var(--brand-primary);
+  --sidebar-border: var(--border-subtle);
+  --sidebar-ring: var(--brand-secondary);
 }
 
 .dark {
-  /* ── Dark Theme (Deep Pine / Slate) ── */
-  --background: #0d1412;
-  --foreground: #eef3f1;
-  --card: #131c19;
-  --card-foreground: #eef3f1;
-  --popover: #131c19;
-  --popover-foreground: #eef3f1;
-  --primary: oklch(0.58 0.15 158);
-  --primary-hover: oklch(0.64 0.15 158);
-  --primary-foreground: #0d1412;
-  --secondary: #1a2723;
-  --secondary-foreground: #eef3f1;
-  --muted: #1a2723;
-  --muted-foreground: #8ea59d;
-  --accent: #20312c;
-  --accent-foreground: #eef3f1;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #223530;
-  --input: #1a2723;
-  --ring: oklch(0.58 0.15 158);
+  /* ── Color System — Dark Theme (Figma Source of Truth) ── */
+  --bg-canvas: #0a0a1c;
+  --bg-surface: #10102a;
+  --bg-surface-alt: #181838;
+  --bg-muted: #222247;
+  --bg-inverse: #f8f7f2;
+  --bg-disabled: #181838;
 
-  --sidebar: #0f1715;
-  --sidebar-foreground: #eef3f1;
-  --sidebar-primary: oklch(0.58 0.15 158);
-  --sidebar-primary-foreground: #0d1412;
-  --sidebar-accent: #192622;
-  --sidebar-accent-foreground: #eef3f1;
-  --sidebar-border: #21332e;
-  --sidebar-ring: oklch(0.58 0.15 158);
+  --text-primary: #f7f7fa;
+  --text-secondary: #cbcbd7;
+  --text-tertiary: #9c9cb0;
+  --text-disabled: #6e6e86;
+  --text-brand: #d9b366;
+  --text-accent: #e6cc99;
+  --text-link: #9999c2;
+  --text-link-hover: #c2c2da;
+  --text-inverse: #0a0a1c;
+
+  /* Brand Primary in Dark Mode is Gold */
+  --brand-primary: #cd9933;
+  --brand-primary-hover: #d9b366;
+  --brand-primary-pressed: #ad822b;
+  --brand-primary-subtle: #523d14;
+  --brand-on-primary: #0a0a1c;
+
+  --brand-secondary: #9999c2;
+  --brand-secondary-hover: #c2c2da;
+  --brand-secondary-pressed: #7373ab;
+  --brand-secondary-subtle: #222247;
+  --brand-on-secondary: #0a0a1c;
+
+  --border-default: #30305a;
+  --border-subtle: #181838;
+  --border-strong: #6e6e86;
+  --border-brand: #cd9933;
+  --border-accent: #cd9933;
+  --border-focus: #d9b366;
+  --border-disabled: #222247;
+
+  --icon-primary: #efeff4;
+  --icon-secondary: #cbcbd7;
+  --icon-brand: #d9b366;
+  --icon-accent: #d9b366;
+  --icon-disabled: #6e6e86;
+  --icon-inverse: #0a0a1c;
+
+  --feedback-success-fg: #8ccbae;
+  --feedback-success-bg: #123828;
+  --feedback-success-border: #1f5c42;
+
+  --feedback-warning-fg: #ebb27a;
+  --feedback-warning-bg: #4a2a0b;
+  --feedback-warning-border: #8a4a12;
+
+  --feedback-error-fg: #e9a39c;
+  --feedback-error-bg: #4a1713;
+  --feedback-error-border: #8c2a22;
+
+  --feedback-info-fg: #9db9e3;
+  --feedback-info-bg: #12284a;
+  --feedback-info-border: #1f4580;
+
+  /* ── Semantic Aliases (Dark) ── */
+  --background: var(--bg-canvas);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--brand-primary);
+  --primary-hover: var(--brand-primary-hover);
+  --primary-foreground: var(--brand-on-primary);
+  --secondary: var(--bg-muted);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-muted);
+  --muted-foreground: var(--text-tertiary);
+  --accent: var(--brand-primary-subtle);
+  --accent-foreground: var(--brand-primary-hover);
+  --destructive: var(--feedback-error-fg);
+  --destructive-foreground: #ffffff;
+  --border: var(--border-default);
+  --input: var(--bg-surface-alt);
+  --ring: var(--brand-primary);
+
+  /* ── Sidebar (Dark) ── */
+  --sidebar: var(--bg-surface);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--brand-primary);
+  --sidebar-primary-foreground: var(--brand-on-primary);
+  --sidebar-accent: var(--bg-muted);
+  --sidebar-accent-foreground: var(--brand-primary);
+  --sidebar-border: var(--border-default);
+  --sidebar-ring: var(--brand-primary);
 }
 
 @theme inline {
@@ -104,41 +228,98 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  /* Specific Design System Palette Tokens */
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-surface-alt: var(--bg-surface-alt);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-gold: #cd9933;
+  --color-brand-navy: #020066;
+  --color-feedback-success: var(--feedback-success-fg);
+  --color-feedback-warning: var(--feedback-warning-fg);
+  --color-feedback-error: var(--feedback-error-fg);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
   }
-
-  body {
-    @apply font-sans text-foreground bg-background;
-    direction: rtl;
-    text-align: right;
+  html {
     scrollbar-width: thin;
     scrollbar-color: var(--primary) transparent;
+    scroll-behavior: smooth;
   }
-
-  html {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    transition: background-color 0.2s ease, color 0.2s ease;
     scrollbar-width: thin;
     scrollbar-color: var(--primary) transparent;
   }
 
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
     background: transparent;
+    border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb {
     background-color: var(--primary);
     border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 0.2s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-hover);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .styled-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) transparent;
+  }
+
+  .styled-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .styled-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 9999px;
+  }
+
+  .styled-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--primary);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .styled-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-hover);
   }
 }
