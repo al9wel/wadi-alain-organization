@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { DataTable } from "../components/data-table";
 import { columns } from "../components/columns";
 import { UserStatisticsCards } from "../components/UserStatisticsCards";
-import { CreateUserDialog } from "../components/UserForm";
+import { CreateUserDialog } from "../components/CreateUserDialog";
 import { useUsers } from "../hooks/useUsers";
 import { usePermission } from "@/hooks/usePermission";
 import { ACTIONS } from "@/constants/permissions";
