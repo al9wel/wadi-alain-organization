@@ -10,7 +10,6 @@ import {
   Settings,
   User as UserIcon,
   LogOut,
-  Search,
   Loader2,
 } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
@@ -146,26 +145,13 @@ export function DashboardSideBar() {
               className="size-full object-contain"
             />
           </div>
-          <div className="flex flex-col text-right">
-            <span className="font-extrabold text-sm text-foreground leading-tight">
+          <div className="flex flex-col gap-2 text-right">
+            <span className="font-extrabold text-[15px] text-foreground leading-tight">
               مؤسسة وادي العين
             </span>
-            <span className="font-bold text-[11px] text-[#8f6b24] dark:text-[#e6cc99] leading-tight">
+            <span className="font-bold text-xs text-[#8f6b24] dark:text-[#e6cc99] leading-tight">
               نظام الأرشفة والتنمية
             </span>
-          </div>
-        </div>
-
-        {/* Search Shortcut Bar */}
-        <div className="mt-3">
-          <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/80 border border-border text-xs text-muted-foreground select-none">
-            <div className="flex items-center gap-2">
-              <Search className="size-3.5 text-muted-foreground" />
-              <span>بحث سريع في الأرشيف...</span>
-            </div>
-            <kbd className="px-1.5 py-0.5 rounded bg-card border border-border text-[10px] font-mono text-muted-foreground">
-              ⌘K
-            </kbd>
           </div>
         </div>
       </SidebarHeader>
@@ -188,7 +174,7 @@ export function DashboardSideBar() {
                           end={item.end}
                           onClick={handleNavClick}
                           className={({ isActive }) =>
-                            `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-colors w-full ${
+                            `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[15px] font-bold transition-colors w-full ${
                               isActive
                                 ? "bg-primary text-primary-foreground shadow-xs"
                                 : "text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -196,7 +182,7 @@ export function DashboardSideBar() {
                           }
                         >
                           <div className="flex items-center gap-2.5">
-                            <Icon className="size-4 shrink-0" />
+                            <Icon className="size-[18px] shrink-0" />
                             <span>{item.title}</span>
                           </div>
                           {item.badge && (
@@ -214,7 +200,7 @@ export function DashboardSideBar() {
                         className="text-muted-foreground/60 cursor-not-allowed hover:bg-transparent"
                         title="قريباً في التحديثات القادمة"
                       >
-                        <Icon className="size-4 shrink-0 text-muted-foreground/50" />
+                        <Icon className="size-[18px] shrink-0 text-muted-foreground/50" />
                         <span>{item.title}</span>
                         {item.badge && (
                           <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>

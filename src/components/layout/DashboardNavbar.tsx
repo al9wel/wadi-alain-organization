@@ -12,11 +12,17 @@ export function DashboardNavbar() {
     if (location.pathname === ROUTES.DASHBOARD.SETTINGS) {
       return "الإعدادات";
     }
+    if (location.pathname === ROUTES.DASHBOARD.USERS) {
+      return "المستخدمون";
+    }
+    if (location.pathname === ROUTES.DASHBOARD.DEPARTMENTS) {
+      return "الأقسام";
+    }
     return "لوحة التحكم الرئيسية";
   };
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b border-border bg-card/90 px-4 sm:px-6 backdrop-blur-md transition-colors" dir="rtl">
+    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-card/95 px-4 sm:px-6 backdrop-blur-md transition-colors" dir="rtl">
       <div className="flex items-center gap-3">
         {/* Official shadcn Sidebar Trigger on mobile */}
         <SidebarTrigger className="md:hidden" />

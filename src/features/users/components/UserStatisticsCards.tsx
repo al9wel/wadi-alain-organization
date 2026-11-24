@@ -1,22 +1,23 @@
-import { Users, UserCheck, UserX, Building } from "lucide-react";
+import { Users, UserCheck, UserX } from "lucide-react";
 import { KpiCard } from "@/components/common/KpiCard";
-import type { BackendUser } from "@/types";
+import type { UserStats } from "@/types";
 
 interface UserStatisticsCardsProps {
-  users?: BackendUser[];
+  stats?: UserStats;
+  fallbackTotal?: number;
   isPending?: boolean;
 }
 
-export function UserStatisticsCards({ users = [], isPending = false }: UserStatisticsCardsProps) {
-  const activeCount = users.filter((u) => u.is_active).length;
-  const inactiveCount = users.filter((u) => !u.is_active).length;
-  const departmentsSet = new Set(users.map((u) => u.department?.id).filter(Boolean));
-
+export function UserStatisticsCards({
+  stats,
+  fallbackTotal = 0,
+  isPending = false,
+}: UserStatisticsCardsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" dir="rtl">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4" dir="rtl">
       <KpiCard
         title="إجمالي المستخدمين"
-        value={users.length}
+        value={stats?.users_count ?? fallbackTotal}
         subtitle="حسابات الموظفين المسجلة"
         icon={Users}
         variant="navy"
@@ -24,7 +25,7 @@ export function UserStatisticsCards({ users = [], isPending = false }: UserStati
       />
       <KpiCard
         title="المستخدمون النشطون"
-        value={activeCount}
+        value={stats?.active_users_count ?? 0}
         subtitle="حسابات مفعلة وتملك حق الدخول"
         icon={UserCheck}
         variant="success"
@@ -32,18 +33,10 @@ export function UserStatisticsCards({ users = [], isPending = false }: UserStati
       />
       <KpiCard
         title="الحسابات الموقوفة"
-        value={inactiveCount}
+        value={stats?.inactive_users_count ?? 0}
         subtitle="معطلة مؤقتاً ومحفوظة سجلاتها"
         icon={UserX}
         variant="warning"
-        isLoading={isPending}
-      />
-      <KpiCard
-        title="الأقسام المربوطة"
-        value={departmentsSet.size || "—"}
-        subtitle="أقسام ينتمي إليها موظفون"
-        icon={Building}
-        variant="gold"
         isLoading={isPending}
       />
     </div>

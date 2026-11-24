@@ -9,6 +9,8 @@ import {
   Mail,
   MoreHorizontal,
   Phone,
+  Power,
+  SquarePen,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -26,13 +28,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ACTIONS } from "@/constants/permissions";
+import { usePermission } from "@/hooks/usePermission";
+import { useActivateUser } from "../hooks/useActivateUser";
+import { useDeactivateUser } from "../hooks/useDeactivateUser";
+import { EditUserDialog } from "./EditUserDialog";
 import type { BackendUser } from "@/types";
 import { cn } from "@/lib/utils";
 
 export const Actions = ({ user }: { user: BackendUser }) => {
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const canUpdate = usePermission(ACTIONS.UPDATE_USER);
+  const { mutate: activateUser, isPending: isActivating } = useActivateUser();
+  const { mutate: deactivateUser, isPending: isDeactivating } = useDeactivateUser();
 
   const isActive = user.is_active;
+  const isToggling = isActivating || isDeactivating;
   const phoneDisplay = user.phone || user.user_name;
 
   const handleCopyPhone = () => {
@@ -41,40 +54,51 @@ export const Actions = ({ user }: { user: BackendUser }) => {
   };
 
   const handleToggleStatus = () => {
-    toast.info(
-      `تغيير حالة المستخدم (${user.name}) سيتوفر فور دعم الواجهة البرمجية (API) في الخادم.`
-    );
+    if (isActive) {
+      deactivateUser(user.id, {
+        onSuccess: (res) => toast.success(res.message || "تم إيقاف المستخدم بنجاح"),
+        onError: (err: Error) => toast.error(err.message || "تعذر إيقاف المستخدم"),
+      });
+    } else {
+      activateUser(user.id, {
+        onSuccess: (res) => toast.success(res.message || "تم تفعيل المستخدم بنجاح"),
+        onError: (err: Error) => toast.error(err.message || "تعذر تفعيل المستخدم"),
+      });
+    }
   };
 
   return (
     <>
       <div className="flex items-center flex-wrap sm:flex-nowrap gap-2.5 shrink-0 justify-end">
-        {/* Status Toggle Pill (UI-only) */}
-        <div
-          className={cn(
-            "h-11 px-3.5 rounded-xl flex items-center gap-3 select-none transition-colors",
-            isActive
-              ? "bg-[#e8f5ee] dark:bg-emerald-950/40"
-              : "bg-[#fcebea] dark:bg-red-950/35"
-          )}
-        >
-          <span
+        {/* Status Toggle Pill */}
+        {canUpdate && (
+          <div
             className={cn(
-              "text-xs font-extrabold min-w-[34px] text-center",
+              "h-11 px-3.5 rounded-xl flex items-center gap-3 select-none transition-colors",
               isActive
-                ? "text-[#1b7a4b] dark:text-emerald-400"
-                : "text-[#c23b2b] dark:text-red-400"
+                ? "bg-[#e8f5ee] dark:bg-emerald-950/40"
+                : "bg-[#fcebea] dark:bg-red-950/35"
             )}
           >
-            {isActive ? "نشط" : "موقوف"}
-          </span>
+            <span
+              className={cn(
+                "text-xs font-extrabold min-w-[34px] text-center",
+                isActive
+                  ? "text-[#1b7a4b] dark:text-emerald-400"
+                  : "text-[#c23b2b] dark:text-red-400"
+              )}
+            >
+              {isActive ? "نشط" : "موقوف"}
+            </span>
 
-          <Switch
-            checked={isActive}
-            onCheckedChange={handleToggleStatus}
-            aria-label={isActive ? "إيقاف المستخدم" : "تفعيل المستخدم"}
-          />
-        </div>
+            <Switch
+              checked={isActive}
+              disabled={isToggling}
+              onCheckedChange={handleToggleStatus}
+              aria-label={isActive ? "إيقاف المستخدم" : "تفعيل المستخدم"}
+            />
+          </div>
+        )}
 
         {/* Primary CTA Button */}
         <Button
@@ -91,17 +115,19 @@ export const Actions = ({ user }: { user: BackendUser }) => {
           <ArrowLeft className="size-4" />
         </Button>
 
-        {/* Copy Phone Button */}
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          onClick={handleCopyPhone}
-          title="نسخ رقم الهاتف"
-          className="size-11 rounded-xl border-border bg-card hover:bg-muted/50 text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
-        >
-          <Copy className="size-4" />
-        </Button>
+        {/* Edit Icon Button */}
+        {canUpdate && (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => setIsEditOpen(true)}
+            title="تعديل المستخدم"
+            className="size-11 rounded-xl border-border bg-card hover:bg-muted/50 text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
+          >
+            <SquarePen className="size-4" />
+          </Button>
+        )}
 
         {/* More Menu */}
         <DropdownMenu>
@@ -124,6 +150,25 @@ export const Actions = ({ user }: { user: BackendUser }) => {
               <Eye className="size-3.5 text-muted-foreground" />
               عرض التفاصيل
             </DropdownMenuItem>
+            {canUpdate && (
+              <>
+                <DropdownMenuItem
+                  onClick={() => setIsEditOpen(true)}
+                  className="gap-2 text-xs font-bold"
+                >
+                  <SquarePen className="size-3.5 text-muted-foreground" />
+                  تعديل المستخدم
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleToggleStatus}
+                  disabled={isToggling}
+                  className="gap-2 text-xs font-bold"
+                >
+                  <Power className="size-3.5 text-muted-foreground" />
+                  {isActive ? "إيقاف المستخدم" : "تفعيل المستخدم"}
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuItem
               onClick={handleCopyPhone}
               className="gap-2 text-xs font-bold"
@@ -236,6 +281,15 @@ export const Actions = ({ user }: { user: BackendUser }) => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Dialog */}
+      {canUpdate && (
+        <EditUserDialog
+          user={user}
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+        />
+      )}
     </>
   );
 };

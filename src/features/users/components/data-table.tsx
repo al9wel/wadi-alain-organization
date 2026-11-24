@@ -19,16 +19,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import type { BackendUser } from "@/types";
+import type { BackendUser, UserStats } from "@/types";
 
 interface DataTableProps<TData extends BackendUser, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  stats?: UserStats;
 }
 
 export function DataTable<TData extends BackendUser, TValue>({
   columns,
   data,
+  stats,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 
@@ -50,8 +52,9 @@ export function DataTable<TData extends BackendUser, TValue>({
   });
 
   const activeFilter = (table.getColumn("is_active")?.getFilterValue() as string) ?? "all";
-  const activeCount = data.filter((u) => u.is_active).length;
-  const inactiveCount = data.filter((u) => !u.is_active).length;
+  const totalCount = stats?.users_count ?? data.length;
+  const activeCount = stats?.active_users_count ?? data.filter((u) => u.is_active).length;
+  const inactiveCount = stats?.inactive_users_count ?? data.filter((u) => !u.is_active).length;
   const totalFiltered = table.getFilteredRowModel().rows.length;
   const { pageIndex, pageSize } = table.getState().pagination;
 
@@ -73,7 +76,7 @@ export function DataTable<TData extends BackendUser, TValue>({
                 : "text-muted-foreground hover:text-foreground font-semibold"
             )}
           >
-            الكل ({data.length})
+            الكل ({totalCount})
           </button>
           <button
             type="button"

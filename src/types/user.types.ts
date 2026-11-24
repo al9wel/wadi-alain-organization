@@ -42,6 +42,19 @@ export interface CreateUserRequest {
   is_active?: boolean;
 }
 
+export interface UpdateUserRequest {
+  name?: string;
+  phone?: string;
+  email?: string | null;
+  department_id?: number | string | null;
+}
+
+export interface UserStats {
+  users_count: number;
+  active_users_count: number;
+  inactive_users_count: number;
+}
+
 export interface UserFilterParams {
   page?: number;
   per_page?: number;

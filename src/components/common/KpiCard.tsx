@@ -32,38 +32,38 @@ export function KpiCard({
   return (
     <div
       className={cn(
-        "bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col justify-between transition-all hover:shadow-sm min-h-[140px]",
+        "bg-card border border-border rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 shadow-xs flex items-center justify-between gap-3 transition-all hover:shadow-sm",
         className
       )}
       dir="rtl"
     >
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-xs sm:text-sm font-bold text-muted-foreground leading-snug">
+      <div className="min-w-0 space-y-1">
+        <p className="text-xs font-bold text-muted-foreground leading-snug">
           {title}
         </p>
-        <div
-          className={cn(
-            "size-11 sm:size-12 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs",
-            iconVariants[variant]
-          )}
-        >
-          <Icon className="size-5 sm:size-6" />
-        </div>
-      </div>
 
-      <div className="mt-3">
         {isLoading ? (
-          <Skeleton className="h-8 w-16 rounded-lg my-1" />
+          <Skeleton className="h-7 w-14 rounded-lg my-0.5" />
         ) : (
-          <p className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+          <p className="text-xl sm:text-2xl font-black text-foreground tracking-tight leading-none">
             {value}
           </p>
         )}
+
         {subtitle && (
-          <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
+          <p className="text-[11px] text-muted-foreground font-medium truncate">
             {subtitle}
           </p>
         )}
+      </div>
+
+      <div
+        className={cn(
+          "size-10 rounded-xl flex items-center justify-center shrink-0",
+          iconVariants[variant]
+        )}
+      >
+        <Icon className="size-5" />
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { columns } from "../components/columns";
 import { UserStatisticsCards } from "../components/UserStatisticsCards";
 import { CreateUserDialog } from "../components/CreateUserDialog";
 import { useUsers } from "../hooks/useUsers";
+import { useUserStats } from "../hooks/useUserStats";
 import { usePermission } from "@/hooks/usePermission";
 import { ACTIONS } from "@/constants/permissions";
 import { ROUTES } from "@/constants/routes";
@@ -13,6 +14,7 @@ import ErrorState from "@/app/pages/ErrorState";
 
 export const UsersPage = () => {
   const { data, isPending, isError, refetch } = useUsers();
+  const { data: statsData, isPending: isStatsPending } = useUserStats();
   const canView = usePermission(ACTIONS.VIEW_USERS);
 
   if (!canView) return <Unauthorized />;
@@ -20,6 +22,8 @@ export const UsersPage = () => {
   if (isError) {
     return <ErrorState onRetry={() => refetch()} />;
   }
+
+  const stats = statsData?.data;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto" dir="rtl">
@@ -55,7 +59,11 @@ export const UsersPage = () => {
         </div>
       ) : (
         <>
-          <UserStatisticsCards users={data?.data || []} isPending={isPending} />
+          <UserStatisticsCards
+            stats={stats}
+            fallbackTotal={data?.data?.length ?? 0}
+            isPending={isStatsPending}
+          />
 
           <div className="bg-[var(--feedback-warning-bg)] border border-[var(--feedback-warning-border)]/70 rounded-2xl p-4 flex items-start gap-3 text-[var(--feedback-warning-fg)]">
             <AlertCircle className="size-5 shrink-0 text-[#cd9933] mt-0.5" />
@@ -65,7 +73,7 @@ export const UsersPage = () => {
             </p>
           </div>
 
-          <DataTable columns={columns} data={data?.data || []} />
+          <DataTable columns={columns} data={data?.data || []} stats={stats} />
         </>
       )}
     </div>

@@ -25,8 +25,8 @@ import { SidebarContext, useSidebar, type SidebarContextProps } from "./sidebar-
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "17rem"
-const SIDEBAR_WIDTH_MOBILE = "18rem"
+const SIDEBAR_WIDTH = "15rem"
+const SIDEBAR_WIDTH_MOBILE = "16.5rem"
 const SIDEBAR_WIDTH_ICON = "3.5rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
@@ -270,7 +270,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
     <main
       data-slot="sidebar-inset"
       className={cn(
-        "relative flex w-full flex-1 flex-col bg-background min-w-0 overflow-x-hidden",
+        "relative flex w-full flex-1 flex-col bg-background min-w-0 overflow-x-clip",
         className
       )}
       {...props}
@@ -365,7 +365,7 @@ function SidebarGroupLabel({
       data-slot="sidebar-group-label"
       data-sidebar="group-label"
       className={cn(
-        "flex h-7 shrink-0 items-center px-3 text-[11px] font-bold text-muted-foreground select-none uppercase tracking-wider",
+        "flex h-7 shrink-0 items-center px-3 text-xs font-bold text-muted-foreground select-none tracking-wide",
         className
       )}
       {...props}
@@ -410,7 +410,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button group/menu-button flex w-full items-center gap-2.5 overflow-hidden rounded-xl px-3.5 py-2.5 text-right text-xs font-bold ring-sidebar-ring outline-hidden transition-colors hover:bg-secondary hover:text-foreground focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-xs [&_svg]:size-4 [&_svg]:shrink-0",
+  "peer/menu-button group/menu-button flex w-full items-center gap-2.5 overflow-hidden rounded-xl px-3.5 py-2.5 text-right text-[15px] font-bold ring-sidebar-ring outline-hidden transition-colors hover:bg-secondary hover:text-foreground focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-xs [&_svg]:size-[18px] [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -418,9 +418,9 @@ const sidebarMenuButtonVariants = cva(
         outline: "border border-border hover:bg-secondary",
       },
       size: {
-        default: "h-9",
-        sm: "h-8 text-xs",
-        lg: "h-11 text-sm",
+        default: "h-10",
+        sm: "h-9 text-sm",
+        lg: "h-11 text-base",
       },
     },
     defaultVariants: {

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -28,9 +29,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDepartments } from "@/features/departments/hooks/useDepartments";
-import type { CreateUserRequest } from "@/types";
+import type { BackendUser, CreateUserRequest } from "@/types";
 
-const createUserSchema = z.object({
+const userSchema = z.object({
   name: z
     .string()
     .min(1, "اسم المستخدم مطلوب")
@@ -50,30 +51,57 @@ const createUserSchema = z.object({
   is_active: z.boolean(),
 });
 
-type CreateUserFormValues = z.infer<typeof createUserSchema>;
+type UserFormValues = z.infer<typeof userSchema>;
 
 interface UserFormProps {
+  initialData?: BackendUser | null;
   onSubmit: (data: CreateUserRequest) => void;
   onCancel: () => void;
   isLoading?: boolean;
 }
 
-export const UserForm = ({ onSubmit, onCancel, isLoading = false }: UserFormProps) => {
+export const UserForm = ({
+  initialData,
+  onSubmit,
+  onCancel,
+  isLoading = false,
+}: UserFormProps) => {
   const { data: departmentsData, isLoading: isLoadingDepts } = useDepartments();
+  const activeDepartments = (departmentsData?.data ?? []).filter((d) => d.is_active);
 
-  const form = useForm<CreateUserFormValues>({
-    resolver: zodResolver(createUserSchema),
+  const form = useForm<UserFormValues>({
+    resolver: zodResolver(userSchema),
     defaultValues: {
-      name: "",
-      phone: "",
-      email: "",
-      department_id: "none",
-      is_active: true,
+      name: initialData?.name ?? "",
+      phone: initialData?.phone ?? "",
+      email: initialData?.email ?? "",
+      department_id: initialData?.department?.id ? String(initialData.department.id) : "none",
+      is_active: initialData?.is_active ?? true,
     },
   });
 
-  const handleFormSubmit = (values: CreateUserFormValues) => {
-    onSubmit({
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        name: initialData.name,
+        phone: initialData.phone ?? "",
+        email: initialData.email ?? "",
+        department_id: initialData.department?.id ? String(initialData.department.id) : "none",
+        is_active: initialData.is_active,
+      });
+    } else {
+      form.reset({
+        name: "",
+        phone: "",
+        email: "",
+        department_id: "none",
+        is_active: true,
+      });
+    }
+  }, [initialData, form]);
+
+  const handleFormSubmit = (values: UserFormValues) => {
+    const basePayload = {
       name: values.name.trim(),
       phone: values.phone.trim(),
       email: values.email ? values.email.trim() : null,
@@ -81,6 +109,15 @@ export const UserForm = ({ onSubmit, onCancel, isLoading = false }: UserFormProp
         values.department_id && values.department_id !== "none"
           ? Number(values.department_id)
           : null,
+    };
+
+    if (initialData) {
+      onSubmit(basePayload);
+      return;
+    }
+
+    onSubmit({
+      ...basePayload,
       is_active: values.is_active,
     });
   };
@@ -194,7 +231,7 @@ export const UserForm = ({ onSubmit, onCancel, isLoading = false }: UserFormProp
                     </SelectTrigger>
                     <SelectContent dir="rtl">
                       <SelectItem value="none">بدون قسم</SelectItem>
-                      {departmentsData?.data?.map((dept) => (
+                      {activeDepartments.map((dept) => (
                         <SelectItem key={dept.id} value={String(dept.id)}>
                           {dept.name}
                         </SelectItem>
@@ -208,34 +245,37 @@ export const UserForm = ({ onSubmit, onCancel, isLoading = false }: UserFormProp
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="is_active"
-          render={({ field }) => (
-            <FormItem className="border border-border/80 rounded-2xl p-4 bg-muted/20 flex items-center justify-between gap-4">
-              <div className="flex items-start gap-3">
-                <div className="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
-                  <ShieldCheck className="size-5" />
+        {/* Activate switch shown on create only; status is toggled via activate/deactivate endpoints */}
+        {!initialData && (
+          <FormField
+            control={form.control}
+            name="is_active"
+            render={({ field }) => (
+              <FormItem className="border border-border/80 rounded-2xl p-4 bg-muted/20 flex items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                    <ShieldCheck className="size-5" />
+                  </div>
+                  <div>
+                    <FormLabel className="text-sm font-bold text-foreground cursor-pointer">
+                      تفعيل الحساب فور الإنشاء
+                    </FormLabel>
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                      سيُطلب من المستخدم تغيير كلمة المرور عند أول تسجيل دخول للنظام.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <FormLabel className="text-sm font-bold text-foreground cursor-pointer">
-                    تفعيل الحساب فور الإنشاء
-                  </FormLabel>
-                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                    سيُطلب من المستخدم تغيير كلمة المرور عند أول تسجيل دخول للنظام.
-                  </p>
-                </div>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                  disabled={isLoading}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={isLoading}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        )}
 
         <div className="flex items-center justify-end gap-3 pt-3">
           <Button
@@ -255,10 +295,10 @@ export const UserForm = ({ onSubmit, onCancel, isLoading = false }: UserFormProp
             {isLoading ? (
               <>
                 <Loader2 className="size-4 animate-spin ml-2" />
-                <span>جاري الإنشاء...</span>
+                <span>{initialData ? "جاري الحفظ..." : "جاري الإنشاء..."}</span>
               </>
             ) : (
-              <span>إضافة المستخدم</span>
+              <span>{initialData ? "حفظ التغييرات" : "إضافة المستخدم"}</span>
             )}
           </Button>
         </div>
