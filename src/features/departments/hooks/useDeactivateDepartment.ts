@@ -2,12 +2,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { departmentApi } from "../api/departmentApi";
 import type { ApiResponse, Department, DepartmentStats, PaginatedResponse } from "@/types";
 
+export interface DeactivateDepartmentVariables {
+  id: number | string;
+  confirm?: boolean;
+}
+
 export const useDeactivateDepartment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number | string) => departmentApi.deactivateDepartment(id),
-    onMutate: async (id: number | string) => {
+    mutationFn: ({ id, confirm = false }: DeactivateDepartmentVariables) =>
+      departmentApi.deactivateDepartment(id, confirm),
+    onMutate: async ({ id }: DeactivateDepartmentVariables) => {
       await queryClient.cancelQueries({ queryKey: ["departments"] });
 
       const previousQueries = queryClient.getQueriesData<PaginatedResponse<Department>>({
@@ -49,7 +55,7 @@ export const useDeactivateDepartment = () => {
 
       return { previousQueries, previousStats };
     },
-    onError: (_error, _id, context) => {
+    onError: (_error, _variables, context) => {
       if (context?.previousQueries) {
         context.previousQueries.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);
@@ -59,7 +65,7 @@ export const useDeactivateDepartment = () => {
         queryClient.setQueryData(["departments", "stats"], context.previousStats);
       }
     },
-    onSuccess: (_response, id) => {
+    onSuccess: (_response, { id, confirm }) => {
       queryClient.setQueriesData<PaginatedResponse<Department>>(
         { queryKey: ["departments"] },
         (old) => {
@@ -80,6 +86,11 @@ export const useDeactivateDepartment = () => {
         refetchType: "inactive",
       });
       queryClient.invalidateQueries({ queryKey: ["departments", "stats"] });
+
+      if (confirm) {
+        queryClient.invalidateQueries({ queryKey: ["users"] });
+        queryClient.invalidateQueries({ queryKey: ["users", "stats"] });
+      }
     },
   });
 };

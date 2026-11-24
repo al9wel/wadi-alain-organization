@@ -4,6 +4,6 @@ import { departmentApi } from "../api/departmentApi";
 export const useDepartments = () => {
   return useQuery({
     queryKey: ["departments"],
-    queryFn: () => departmentApi.getDepartments({ per_page: 100 }),
+    queryFn: () => departmentApi.getDepartments({ status: "all", per_page: 100 }),
   });
 };

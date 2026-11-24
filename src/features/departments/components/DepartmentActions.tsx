@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { isAxiosError } from "axios";
 import {
+  AlertTriangle,
   ArrowLeft,
   Building,
   Calendar,
   Eye,
   Info,
+  Loader2,
   MoreHorizontal,
   Power,
   SquarePen,
@@ -39,9 +42,15 @@ interface DepartmentActionsProps {
   department: Department;
 }
 
+interface ConfirmDeactivateState {
+  message: string;
+  activeUsersCount: number;
+}
+
 export const DepartmentActions = ({ department }: DepartmentActionsProps) => {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [confirmDeactivate, setConfirmDeactivate] = useState<ConfirmDeactivateState | null>(null);
 
   const canUpdate = usePermission(ACTIONS.UPDATE_DEPARTMENT);
   const { mutate: updateDept, isPending: isUpdating } = useUpdateDepartment();
@@ -53,16 +62,59 @@ export const DepartmentActions = ({ department }: DepartmentActionsProps) => {
 
   const handleToggleStatus = () => {
     if (isActive) {
-      deactivateDept(department.id, {
-        onSuccess: (res) => toast.success(res.message || "تم إيقاف القسم بنجاح"),
-        onError: (err: Error) => toast.error(err.message || "تعذر إيقاف القسم"),
-      });
+      deactivateDept(
+        { id: department.id, confirm: false },
+        {
+          onSuccess: (res) => toast.success(res.message || "تم إيقاف القسم بنجاح"),
+          onError: (err: Error) => {
+            if (isAxiosError(err)) {
+              const errData = err.response?.data as {
+                message?: string;
+                errors?: {
+                  code?: string;
+                  requires_confirmation?: boolean;
+                  active_users_count?: number;
+                };
+              } | undefined;
+
+              if (
+                errData?.errors?.requires_confirmation ||
+                errData?.errors?.code === "DEPARTMENT_HAS_ACTIVE_USERS"
+              ) {
+                setConfirmDeactivate({
+                  message:
+                    errData.message ||
+                    "هذا القسم يحتوي على موظفين نشطين. سيتم إيقاف القسم مع جميع الموظفين التابعين له، يرجى التأكيد للمتابعة.",
+                  activeUsersCount: errData.errors.active_users_count ?? 0,
+                });
+                return;
+              }
+            }
+            toast.error(err.message || "تعذر إيقاف القسم");
+          },
+        }
+      );
     } else {
       activateDept(department.id, {
         onSuccess: (res) => toast.success(res.message || "تم تفعيل القسم بنجاح"),
         onError: (err: Error) => toast.error(err.message || "تعذر تفعيل القسم"),
       });
     }
+  };
+
+  const handleConfirmDeactivate = () => {
+    deactivateDept(
+      { id: department.id, confirm: true },
+      {
+        onSuccess: (res) => {
+          setConfirmDeactivate(null);
+          toast.success(res.message || "تم إيقاف القسم بنجاح");
+        },
+        onError: (err: Error) => {
+          toast.error(err.message || "تعذر إيقاف القسم");
+        },
+      }
+    );
   };
 
   const handleUpdate = (data: CreateDepartmentRequest) => {
@@ -280,6 +332,75 @@ export const DepartmentActions = ({ department }: DepartmentActionsProps) => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Confirm Deactivate Department With Active Users Dialog */}
+      <Dialog
+        open={Boolean(confirmDeactivate)}
+        onOpenChange={(next) => {
+          if (!next && !isDeactivating) setConfirmDeactivate(null);
+        }}
+      >
+        <DialogContent className="max-w-[480px] p-6 sm:p-7 rounded-3xl" dir="rtl">
+          <DialogHeader className="text-right space-y-3">
+            <div className="flex items-center gap-3.5">
+              <div className="size-12 rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center shrink-0">
+                <AlertTriangle className="size-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-lg sm:text-xl font-extrabold text-foreground">
+                  تأكيد إيقاف القسم
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                  قسم: {department.name}
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2">
+            <div className="rounded-2xl border border-destructive/25 bg-destructive/5 p-4 text-xs sm:text-sm leading-relaxed text-foreground font-medium">
+              {confirmDeactivate?.message}
+            </div>
+
+            {confirmDeactivate && confirmDeactivate.activeUsersCount > 0 && (
+              <p className="text-xs text-muted-foreground">
+                عدد الموظفين النشطين المتأثرين:{" "}
+                <span className="font-extrabold text-destructive">
+                  {confirmDeactivate.activeUsersCount}
+                </span>
+              </p>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setConfirmDeactivate(null)}
+                disabled={isDeactivating}
+                className="h-11 px-5 rounded-xl border-border font-bold text-xs sm:text-sm cursor-pointer"
+              >
+                إلغاء
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleConfirmDeactivate}
+                disabled={isDeactivating}
+                className="h-11 px-5 rounded-xl font-bold text-xs sm:text-sm cursor-pointer flex items-center gap-2"
+              >
+                {isDeactivating ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    <span>جاري الإيقاف...</span>
+                  </>
+                ) : (
+                  <span>تأكيد إيقاف القسم والموظفين</span>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

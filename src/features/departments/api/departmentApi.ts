@@ -51,9 +51,13 @@ export const departmentApi = {
     return response.data;
   },
 
-  deactivateDepartment: async (id: number | string): Promise<ApiResponse<Department>> => {
+  deactivateDepartment: async (
+    id: number | string,
+    confirm = false
+  ): Promise<ApiResponse<Department>> => {
     const response = await apiClient.patch<ApiResponse<Department>>(
-      `/departments/${id}/deactivate`
+      `/departments/${id}/deactivate`,
+      confirm ? { confirm: true } : undefined
     );
     return response.data;
   },
