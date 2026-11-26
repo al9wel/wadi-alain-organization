@@ -15,6 +15,9 @@ export function DashboardNavbar() {
     if (location.pathname === ROUTES.DASHBOARD.USERS) {
       return "المستخدمون";
     }
+    if (location.pathname === ROUTES.DASHBOARD.ACTIVITY_LOGS) {
+      return "سجل النشاط";
+    }
     if (location.pathname === ROUTES.DASHBOARD.DEPARTMENTS) {
       return "الأقسام";
     }
