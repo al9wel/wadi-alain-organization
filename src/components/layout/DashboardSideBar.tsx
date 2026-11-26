@@ -127,8 +127,9 @@ export function DashboardSideBar() {
       items: [
         {
           title: "الملف الشخصي",
+          path: ROUTES.DASHBOARD.PROFILE,
           icon: UserIcon,
-          isAvailable: false,
+          isAvailable: true,
         },
       ],
     },

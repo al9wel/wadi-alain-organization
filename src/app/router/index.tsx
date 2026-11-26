@@ -12,6 +12,7 @@ import { UsersLayout } from "@/features/users/layouts/UsersLayout";
 import { UsersPage } from "@/features/users/pages/users/UsersPage";
 import { AttachmentsPage } from "@/features/users/pages/attachment/AttachmentsPage";
 import { ActivityLogsPage } from "@/features/activity-logs/pages/ActivityLogsPage";
+import { ProfilePage } from "@/features/profile/pages/ProfilePage";
 import { SettingsPage } from "@/features/settings/pages/SettingsPage";
 import { Unauthorized } from "@/app/pages/Unauthorized";
 import { ErrorState } from "@/app/pages/ErrorState";
@@ -87,6 +88,10 @@ export const router = createBrowserRouter([
           {
             path: ROUTES.DASHBOARD.ACTIVITY_LOGS.split("/").pop(),
             element: <ActivityLogsPage />,
+          },
+          {
+            path: ROUTES.DASHBOARD.PROFILE.split("/").pop(),
+            element: <ProfilePage />,
           },
           {
             path: ROUTES.DASHBOARD.SETTINGS.split("/").pop(),
