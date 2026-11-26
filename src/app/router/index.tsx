@@ -9,6 +9,7 @@ import { PasswordChangedPage } from "@/features/auth/pages/PasswordChangedPage";
 import { MainPage } from "@/features/main/pages/MainPage";
 import { DepartmentsPage } from "@/features/departments/pages/DepartmentsPage";
 import { UsersPage } from "@/features/users/pages/UsersPage";
+import { ActivityLogsPage } from "@/features/activity-logs/pages/ActivityLogsPage";
 import { SettingsPage } from "@/features/settings/pages/SettingsPage";
 import { Unauthorized } from "@/app/pages/Unauthorized";
 import { ErrorState } from "@/app/pages/ErrorState";
@@ -73,6 +74,10 @@ export const router = createBrowserRouter([
           {
             path: ROUTES.DASHBOARD.USERS.split("/").pop(),
             element: <UsersPage />,
+          },
+          {
+            path: ROUTES.DASHBOARD.ACTIVITY_LOGS.split("/").pop(),
+            element: <ActivityLogsPage />,
           },
           {
             path: ROUTES.DASHBOARD.SETTINGS.split("/").pop(),

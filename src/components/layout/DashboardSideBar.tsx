@@ -103,8 +103,9 @@ export function DashboardSideBar() {
         },
         {
           title: "سجل النشاط",
+          path: ROUTES.DASHBOARD.ACTIVITY_LOGS,
           icon: History,
-          isAvailable: false,
+          isAvailable: true,
         },
         {
           title: "سلة المحذوفات",

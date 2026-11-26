@@ -13,6 +13,7 @@ export const ROUTES = {
     ROOT: "/dashboard",
     DEPARTMENTS: "/dashboard/departments",
     USERS: "/dashboard/users",
+    ACTIVITY_LOGS: "/dashboard/activity-logs",
     SETTINGS: "/dashboard/settings",
   },
 } as const;
