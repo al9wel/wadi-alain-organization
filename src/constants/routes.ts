@@ -13,6 +13,7 @@ export const ROUTES = {
     ROOT: "/dashboard",
     DEPARTMENTS: "/dashboard/departments",
     USERS: "/dashboard/users",
+    USER_ATTACHMENTS: "/dashboard/users/attachments",
     ACTIVITY_LOGS: "/dashboard/activity-logs",
     SETTINGS: "/dashboard/settings",
   },

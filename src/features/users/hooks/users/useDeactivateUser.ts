@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { userApi } from "../api/userApi";
+import { userApi } from "../../api/userApi";
 import type { ApiResponse, BackendUser, PaginatedResponse, UserStats } from "@/types";
 
-export const useActivateUser = () => {
+export const useDeactivateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number | string) => userApi.activateUser(id),
+    mutationFn: (id: number | string) => userApi.deactivateUser(id),
     onMutate: async (id: number | string) => {
       await queryClient.cancelQueries({ queryKey: ["users"] });
 
@@ -22,7 +22,7 @@ export const useActivateUser = () => {
           return {
             ...old,
             data: old.data.map((u) =>
-              u.id === Number(id) || u.id === String(id) ? { ...u, is_active: true } : u
+              u.id === Number(id) || u.id === String(id) ? { ...u, is_active: false } : u
             ),
           };
         }
@@ -33,8 +33,8 @@ export const useActivateUser = () => {
           ...previousStats,
           data: {
             ...previousStats.data,
-            active_users_count: previousStats.data.active_users_count + 1,
-            inactive_users_count: Math.max(0, previousStats.data.inactive_users_count - 1),
+            active_users_count: Math.max(0, previousStats.data.active_users_count - 1),
+            inactive_users_count: previousStats.data.inactive_users_count + 1,
           },
         });
       }
@@ -59,7 +59,7 @@ export const useActivateUser = () => {
           return {
             ...old,
             data: old.data.map((u) =>
-              u.id === Number(id) || u.id === String(id) ? { ...u, is_active: true } : u
+              u.id === Number(id) || u.id === String(id) ? { ...u, is_active: false } : u
             ),
           };
         }

@@ -8,7 +8,9 @@ import { ChangePasswordPage } from "@/features/auth/pages/ChangePasswordPage";
 import { PasswordChangedPage } from "@/features/auth/pages/PasswordChangedPage";
 import { MainPage } from "@/features/main/pages/MainPage";
 import { DepartmentsPage } from "@/features/departments/pages/DepartmentsPage";
-import { UsersPage } from "@/features/users/pages/UsersPage";
+import { UsersLayout } from "@/features/users/layouts/UsersLayout";
+import { UsersPage } from "@/features/users/pages/users/UsersPage";
+import { AttachmentsPage } from "@/features/users/pages/attachment/AttachmentsPage";
 import { ActivityLogsPage } from "@/features/activity-logs/pages/ActivityLogsPage";
 import { SettingsPage } from "@/features/settings/pages/SettingsPage";
 import { Unauthorized } from "@/app/pages/Unauthorized";
@@ -73,7 +75,14 @@ export const router = createBrowserRouter([
           },
           {
             path: ROUTES.DASHBOARD.USERS.split("/").pop(),
-            element: <UsersPage />,
+            element: <UsersLayout />,
+            children: [
+              { index: true, element: <UsersPage /> },
+              {
+                path: ROUTES.DASHBOARD.USER_ATTACHMENTS.split("/").pop(),
+                element: <AttachmentsPage />,
+              },
+            ],
           },
           {
             path: ROUTES.DASHBOARD.ACTIVITY_LOGS.split("/").pop(),

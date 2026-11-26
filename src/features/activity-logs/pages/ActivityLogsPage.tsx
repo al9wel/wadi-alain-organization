@@ -16,7 +16,7 @@ import {
   useActivityLogStats,
   useWeeklyActivityLogStats,
 } from "../hooks/useActivityLogStats";
-import { useUserStats } from "@/features/users/hooks/useUserStats";
+import { useUserStats } from "@/features/users/hooks/users/useUserStats";
 import { usePermission } from "@/hooks/usePermission";
 import { ACTIONS } from "@/constants/permissions";
 import { ROUTES } from "@/constants/routes";

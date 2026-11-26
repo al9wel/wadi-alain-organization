@@ -12,7 +12,10 @@ export function DashboardNavbar() {
     if (location.pathname === ROUTES.DASHBOARD.SETTINGS) {
       return "الإعدادات";
     }
-    if (location.pathname === ROUTES.DASHBOARD.USERS) {
+    if (location.pathname === ROUTES.DASHBOARD.USER_ATTACHMENTS) {
+      return "ملحقات المستخدمين";
+    }
+    if (location.pathname.startsWith(ROUTES.DASHBOARD.USERS)) {
       return "المستخدمون";
     }
     if (location.pathname === ROUTES.DASHBOARD.ACTIVITY_LOGS) {

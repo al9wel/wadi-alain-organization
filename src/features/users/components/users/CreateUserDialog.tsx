@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { usePermission } from "@/hooks/usePermission";
 import { ACTIONS } from "@/constants/permissions";
-import { useCreateUser } from "../hooks/useCreateUser";
+import { useCreateUser } from "../../hooks/users/useCreateUser";
 import { UserForm } from "./UserForm";
 import type { CreateUserData, CreateUserRequest } from "@/types";
 

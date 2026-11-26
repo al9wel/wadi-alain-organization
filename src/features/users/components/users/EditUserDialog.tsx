@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useUpdateUser } from "../hooks/useUpdateUser";
+import { useUpdateUser } from "../../hooks/users/useUpdateUser";
 import { UserForm } from "./UserForm";
 import type { BackendUser, UpdateUserRequest } from "@/types";
 
