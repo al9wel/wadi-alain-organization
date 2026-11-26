@@ -138,7 +138,7 @@ export const columns: ColumnDef<ActivityLog>[] = [
   },
   {
     accessorKey: "description",
-    header: "العنصر",
+    header: "الوصف",
     cell: ({ row }) => {
       const { description, module } = row.original;
       const moduleLabel = (module && MODULE_LABELS[module]) || module;

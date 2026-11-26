@@ -24,6 +24,12 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
  */
 export const changePasswordSchema = z
   .object({
+    email: z
+      .string()
+      .trim()
+      .min(1, "البريد الإلكتروني مطلوب لإكمال إعداد الحساب")
+      .email("صيغة البريد الإلكتروني غير صحيحة")
+      .max(255, "البريد الإلكتروني يجب ألا يتجاوز 255 حرفاً"),
     current_password: z
       .string()
       .min(1, "يرجى إدخال كلمة المرور الحالية أو المؤقتة"),

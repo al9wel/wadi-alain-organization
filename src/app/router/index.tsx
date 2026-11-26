@@ -16,6 +16,7 @@ import { ProfilePage } from "@/features/profile/pages/ProfilePage";
 import { SettingsPage } from "@/features/settings/pages/SettingsPage";
 import { Unauthorized } from "@/app/pages/Unauthorized";
 import { ErrorState } from "@/app/pages/ErrorState";
+import { NotFound } from "@/app/pages/NotFound";
 import { ProtectedRoute, PublicRoute } from "./guards";
 
 export const router = createBrowserRouter([
@@ -97,6 +98,10 @@ export const router = createBrowserRouter([
             path: ROUTES.DASHBOARD.SETTINGS.split("/").pop(),
             element: <SettingsPage />,
           },
+          {
+            path: "*",
+            element: <NotFound />,
+          },
         ],
       },
     ],
@@ -105,14 +110,8 @@ export const router = createBrowserRouter([
   // 404 Not Found
   {
     path: "*",
-    element: (
-      <div className="min-h-screen flex items-center justify-center p-4 text-center" dir="rtl">
-        <div>
-          <h1 className="text-4xl font-black text-foreground mb-2">404</h1>
-          <p className="text-muted-foreground mb-4">الصفحة التي تبحث عنها غير موجودة</p>
-          <a href={ROUTES.PUBLIC.ROOT} className="text-primary underline">العودة للرئيسية</a>
-        </div>
-      </div>
-    ),
+    element: <NotFound fullScreen />,
   },
-]);
+], {
+  basename: import.meta.env.BASE_URL,
+});

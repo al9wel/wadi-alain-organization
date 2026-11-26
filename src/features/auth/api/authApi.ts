@@ -31,6 +31,7 @@ export const changePassword = async (
       current_password: payload.current_password,
       new_password: payload.new_password,
       new_password_confirmation: payload.new_password_confirmation,
+      email: payload.email.trim().toLowerCase(),
       device_name: payload.device_name || "web_portal",
     }
   );

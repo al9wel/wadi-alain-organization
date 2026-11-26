@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Lock, Eye, EyeOff, Check, ArrowRight, Loader2 } from "lucide-react";
+import { Lock, Mail, Eye, EyeOff, Check, ArrowRight, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +45,7 @@ export function ResetPasswordForm({
   const form = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
+      email: tempUser?.email ?? "",
       current_password: "",
       new_password: "",
       new_password_confirmation: "",
@@ -58,7 +59,6 @@ export function ResetPasswordForm({
     defaultValue: "",
   });
 
-  // Password Policy: ONLY minimum 8 characters is required.
   const hasMinLength = watchedPassword.length >= 8;
 
   const onSubmit = (values: ChangePasswordFormValues) => {
@@ -66,7 +66,9 @@ export function ResetPasswordForm({
       onSuccess: (response) => {
         const normalized = normalizeUser(response.data.user);
         setUser(normalized, response.data.token);
-        toast.success(response.message || "تم تغيير كلمة المرور بنجاح");
+        toast.success(
+          response.message || "تم تحديث البريد الإلكتروني وكلمة المرور بنجاح"
+        );
         if (onSuccess) {
           onSuccess();
         } else {
@@ -76,7 +78,7 @@ export function ResetPasswordForm({
       onError: (error: Error) => {
         toast.error(
           error.message ||
-            "تعذر تغيير كلمة المرور، يرجى التحقق من صحة كلمة المرور الحالية"
+            "تعذر إكمال التفعيل، يرجى التحقق من صحة البيانات المدخلة"
         );
       },
     });
@@ -100,18 +102,47 @@ export function ResetPasswordForm({
         </div>
 
         <h1 className="text-2xl sm:text-[28px] font-extrabold text-foreground tracking-tight">
-          أنشئ كلمة مرورك الجديدة
+          تفعيل الحساب وكلمة المرور
         </h1>
 
         <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-xs">
           {tempUser
-            ? `مرحباً ${tempUser.name}، لأسباب أمنية يجب تعيين كلمة مرور جديدة لحسابك قبل المتابعة.`
-            : "لأسباب أمنية، يجب استبدال كلمة المرور المؤقتة قبل المتابعة."}
+            ? `مرحباً ${tempUser.name}، يرجى إدخال بريدك الإلكتروني وتعيين كلمة مرور جديدة لحسابك قبل المتابعة.`
+            : "لإكمال تفعيل حسابك، يرجى إدخال البريد الإلكتروني واستبدال كلمة المرور المؤقتة."}
         </p>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Email Field */}
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="space-y-1.5 text-right">
+                <FormLabel className="text-xs font-bold text-foreground">
+                  البريد الإلكتروني <span className="text-destructive">*</span>
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      disabled={changePasswordMutation.isPending}
+                      type="email"
+                      dir="ltr"
+                      placeholder="example@gmail.com"
+                      className="h-12 pl-4 pr-11 bg-card border-border rounded-xl text-sm text-right focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all"
+                    />
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+                      <Mail className="size-4" />
+                    </div>
+                  </div>
+                </FormControl>
+                <FormMessage className="text-xs text-rose-500 font-medium" />
+              </FormItem>
+            )}
+          />
+
           {/* Current Password Field */}
           <FormField
             control={form.control}
@@ -119,7 +150,7 @@ export function ResetPasswordForm({
             render={({ field }) => (
               <FormItem className="space-y-1.5 text-right">
                 <FormLabel className="text-xs font-bold text-foreground">
-                  كلمة المرور الحالية أو المؤقتة
+                  كلمة المرور الحالية أو المؤقتة <span className="text-destructive">*</span>
                 </FormLabel>
                 <FormControl>
                   <div className="relative">
@@ -127,7 +158,7 @@ export function ResetPasswordForm({
                       {...field}
                       disabled={changePasswordMutation.isPending}
                       type={showCurrentPassword ? "text" : "password"}
-                      placeholder="أدخل كلمة المرور الحالية"
+                      placeholder="أدخل كلمة المرور المؤقتة"
                       className="h-12 pl-11 pr-11 bg-card border-border rounded-xl text-sm focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all"
                     />
                     <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
@@ -159,7 +190,7 @@ export function ResetPasswordForm({
             render={({ field }) => (
               <FormItem className="space-y-1.5 text-right">
                 <FormLabel className="text-xs font-bold text-foreground">
-                  كلمة المرور الجديدة
+                  كلمة المرور الجديدة <span className="text-destructive">*</span>
                 </FormLabel>
                 <FormControl>
                   <div className="relative">
@@ -204,7 +235,13 @@ export function ResetPasswordForm({
               >
                 <Check className="size-2.5 stroke-[3]" />
               </div>
-              <span className={hasMinLength ? "text-emerald-600 font-bold" : "text-muted-foreground font-medium"}>
+              <span
+                className={
+                  hasMinLength
+                    ? "text-emerald-600 font-bold"
+                    : "text-muted-foreground font-medium"
+                }
+              >
                 يجب ألا تقل كلمة المرور عن 8 أحرف (يُقبل أي مزيج من الحروف أو الأرقام أو الرموز)
               </span>
             </div>
@@ -217,7 +254,7 @@ export function ResetPasswordForm({
             render={({ field }) => (
               <FormItem className="space-y-1.5 text-right">
                 <FormLabel className="text-xs font-bold text-foreground">
-                  تأكيد كلمة المرور الجديدة
+                  تأكيد كلمة المرور الجديدة <span className="text-destructive">*</span>
                 </FormLabel>
                 <FormControl>
                   <div className="relative">
@@ -259,7 +296,7 @@ export function ResetPasswordForm({
             {changePasswordMutation.isPending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                <span>جاري حفظ كلمة المرور...</span>
+                <span>جاري حفظ البيانات...</span>
               </>
             ) : (
               <span>حفظ وتفعيل الحساب</span>
