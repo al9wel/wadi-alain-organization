@@ -30,8 +30,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ACTIONS } from "@/constants/permissions";
 import { usePermission } from "@/hooks/usePermission";
-import { useActivateUser } from "../hooks/useActivateUser";
-import { useDeactivateUser } from "../hooks/useDeactivateUser";
+import { useActivateUser } from "../../hooks/users/useActivateUser";
+import { useDeactivateUser } from "../../hooks/users/useDeactivateUser";
 import { EditUserDialog } from "./EditUserDialog";
 import type { BackendUser } from "@/types";
 import { cn } from "@/lib/utils";
