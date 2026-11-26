@@ -1,75 +1,81 @@
-# React + TypeScript + Vite
+# منظومة مؤسسة وادي العين للتنمية والأرشفة — الواجهة الأمامية (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+واجهة ويب أحادية الصفحة (**SPA**) مبنية باستخدام **React 19** و**TypeScript 6** و**Vite 8** لإدارة الأرشيف الرقمي، الأقسام، المستخدمين ومرفقاتهم، الملف الشخصي، وسجل النشاط المؤسسي لمؤسسة وادي العين.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 1. متطلبات البيئة والإصدارات (Environment & Versions)
 
-## React Compiler
+هذه هي الإصدارات المعتمدة لتشغيل وبناء المشروع في بيئات التطوير والإنتاج (CI/CD):
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| الأداة / الحزمة | الإصدار المعتمد | ملاحظات لمهندس الـ DevOps |
+| :--- | :--- | :--- |
+| **Node.js** | `v22.13.0` (`>= 22.12.0 LTS`) | يتطلب Vite 8 إصدار Node `20.19+` أو `22.12+` |
+| **npm** | `11.7.0` (`>= 10.x`) | استخدم `npm ci` في السيرفر وخطوط البناء لضمان تطابق `package-lock.json` |
+| **React / React DOM** | `^19.3.1` | مكتبة واجهة المستخدم |
+| **TypeScript** | `~6.0.3` | فحص صارم للأنواع أثناء البناء (`tsc -b`) |
+| **Vite** | `^8.3.6` | أداة التجميع والبناء (تُخرج الملفات الثابتة النهائية في مجلد `dist/`) |
+| **Tailwind CSS** | `^4.3.5` | مدمج عبر `@tailwindcss/vite` |
+| **React Router** | `^7.18.6` | توجيه SPA يعتمد على HTML5 History API (`createBrowserRouter`) |
+| **TanStack Query / Table** | `^5.108.2` / `^8.21.2` | إدارة الكاش والطلبات والجداول |
+| **Axios** | `^1.21.1` | عميل HTTP مركزي مع معالجة التوكن `Bearer Token` |
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 2. متغيرات البيئة (Environment Variables)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+انسخ ملف `.env.example` إلى `.env` قبل التشغيل أو مرر المتغيرات في بيئة البناء:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+cp .env.example .env
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## 3. أوامر التشغيل والفحص والبناء (Scripts)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# 1. تثبيت الاعتماديات
+npm ci
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 2. تشغيل خادم التطوير المحلي (المنفذ الافتراضي 5173)
+npm run dev
 
+# 3. فحص جودة الكود (ESLint)
+npm run lint
+
+# 4. فحص الأنواع وبناء نسخة الإنتاج داخل مجلد dist/
+npm run build
+
+# 5. معاينة نسخة الإنتاج محلياً بعد البناء (المنفذ الافتراضي 4173)
+npm run preview
+```
+
+- **مجلد مخرجات البناء (Build Output Directory):** `dist`
+
+---
+
+## 4. توجيه المسارات (SPA Routing & Page Refresh)
+
+التطبيق عبارة عن **Single Page Application (SPA)** يستخدم `react-router-dom`. لضمان عدم حدوث خطأ `404` عند تحديث المتصفح (`Refresh`) على المسارات الداخلية (مثل `/dashboard/users` أو `/dashboard/profile`):
+
+- تم تضمين ملف **`vercel.json`** وملف **`public/_redirects`** لإعادة توجيه جميع المسارات تلقائياً إلى `/index.html` على المنصات السحابية مثل Vercel وNetlify وCloudflare Pages وAmplify.
+- في حال تقديم ملفات `dist/` عبر خادم ويب مخصص (مثل **Nginx** أو **Apache** أو **CloudFront**)، يجب توجيه المسارات غير الموجودة إلى `/index.html` (مثلاً `try_files $uri $uri/ /index.html;` في Nginx).
+- تأكد من إضافة نطاق الواجهة الأمامية ضمن `allowed_origins` في إعدادات **CORS** بالباكند (`config/cors.php`).
+
+---
+
+## 5. هيكلية المشروع المختصرة
+
+```text
+├── public/               # الأصول العامة وملف _redirects
+├── src/
+│   ├── app/              # الراوتر، الحراس، صفحات النظام (NotFound, Unauthorized, ErrorState)، ومخزن Zustand
+│   ├── components/       # التخطيطات العامة (Sidebar / Navbar) ومكونات Shadcn UI
+│   ├── constants/        # المسارات (routes)، الأدوار (roles)، والصلاحيات (permissions)
+│   ├── features/         # الميزات المقسمة حسب النطاق (auth, departments, users, activity-logs, profile, settings)
+│   ├── hooks/            # الخطافات المشتركة (useAuth, usePermission)
+│   ├── lib/              # عميل Axios الموحد (api-client.ts) والأدوات المساعدة
+│   ├── styles/           # إعدادات Tailwind v4 والهوية البصرية (globals.css)
+│   └── types/            # تعريفات TypeScript المركزية
+├── vercel.json           # إعداد إعادة التوجيه لـ SPA
+└── .env.example          # نموذج متغيرات البيئة
 ```

@@ -77,16 +77,7 @@ export function DataTable<TData extends ActivityLog, TValue>({
       if (!search) return true;
 
       const userName = (row.original.causer?.name || "النظام").toLowerCase();
-      const eventName = (row.original.event || "").toLowerCase();
-      const description = (row.original.description || "").toLowerCase();
-      const moduleName = (row.original.module || "").toLowerCase();
-
-      return (
-        userName.includes(search) ||
-        eventName.includes(search) ||
-        description.includes(search) ||
-        moduleName.includes(search)
-      );
+      return userName.includes(search);
     },
     state: {
       columnFilters,
@@ -150,7 +141,7 @@ export function DataTable<TData extends ActivityLog, TValue>({
           <div className="relative w-full sm:w-[260px]">
             <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
             <Input
-              placeholder="ابحث عن مستخدم أو عملية..."
+              placeholder="البحث باسم الفاعل..."
               value={globalFilter}
               onChange={(event) => table.setGlobalFilter(event.target.value)}
               className="h-10 pr-10 pl-3 text-xs rounded-xl bg-surface-alt border-border shadow-none"

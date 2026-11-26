@@ -8,6 +8,7 @@ import {
   FilePlus2,
   Loader2,
   RefreshCw,
+  Trash2,
   Upload,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -23,6 +24,7 @@ import {
 import { useUserAttachments } from "@/features/users/hooks/attachment/useAttachments";
 import { useCreateAttachment } from "@/features/users/hooks/attachment/useCreateAttachment";
 import { useUpdateAttachment } from "@/features/users/hooks/attachment/useUpdateAttachment";
+import { useDeleteAttachment } from "@/features/users/hooks/attachment/useDeleteAttachment";
 import type { UserAttachment } from "@/types";
 
 interface ProfileDocumentsCardProps {
@@ -52,12 +54,15 @@ export const ProfileDocumentsCard = ({
   const { data: attachmentsData, isPending } = useUserAttachments(userId);
   const { mutate: createAttachment, isPending: isCreating } = useCreateAttachment();
   const { mutate: updateAttachment, isPending: isUpdating } = useUpdateAttachment();
+  const { mutate: deleteAttachment, isPending: isDeleting } = useDeleteAttachment();
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [docTitle, setDocTitle] = useState("");
   const [docFile, setDocFile] = useState<File | null>(null);
   const replaceInputRef = useRef<HTMLInputElement | null>(null);
   const [replacingAttachment, setReplacingAttachment] =
+    useState<UserAttachment | null>(null);
+  const [deletingAttachment, setDeletingAttachment] =
     useState<UserAttachment | null>(null);
 
   const attachments = attachmentsData?.data ?? [];
@@ -141,6 +146,26 @@ export const ProfileDocumentsCard = ({
         onError: (err: Error) => {
           toast.error(err.message || "تعذر استبدال المستند");
           setReplacingAttachment(null);
+        },
+      }
+    );
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deletingAttachment) return;
+
+    deleteAttachment(
+      {
+        userId,
+        attachmentId: deletingAttachment.id,
+      },
+      {
+        onSuccess: (res) => {
+          toast.success(res.message || "تم حذف المستند بنجاح");
+          setDeletingAttachment(null);
+        },
+        onError: (err: Error) => {
+          toast.error(err.message || "تعذر حذف المستند");
         },
       }
     );
@@ -269,7 +294,7 @@ export const ProfileDocumentsCard = ({
               </div>
             ))}
 
-            {/* Uploaded attachments (Solid rows matching Figma) */}
+            {/* Uploaded attachments (Solid rows matching Figma + Delete button) */}
             {attachments.map((att) => (
               <div
                 key={att.id}
@@ -298,7 +323,7 @@ export const ProfileDocumentsCard = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                <div className="flex items-center flex-wrap gap-2 self-start sm:self-auto shrink-0">
                   {att.file_url && (
                     <Button
                       asChild
@@ -330,6 +355,17 @@ export const ProfileDocumentsCard = ({
                         <RefreshCw className="size-3.5" />
                       </>
                     )}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setDeletingAttachment(att)}
+                    title="حذف المستند"
+                    className="h-10 px-3.5 rounded-xl border-rose-200 dark:border-rose-900/40 text-destructive hover:bg-destructive/10 text-xs font-bold gap-1.5 cursor-pointer"
+                  >
+                    <span>حذف</span>
+                    <Trash2 className="size-3.5" />
                   </Button>
                 </div>
               </div>
@@ -409,6 +445,61 @@ export const ProfileDocumentsCard = ({
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={Boolean(deletingAttachment)}
+        onOpenChange={(next) => {
+          if (!next && !isDeleting) {
+            setDeletingAttachment(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md rounded-3xl p-6" dir="rtl">
+          <DialogHeader className="text-right">
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-full bg-destructive/10 text-destructive shrink-0">
+                <AlertTriangle className="size-5" />
+              </div>
+              <DialogTitle className="text-lg font-extrabold text-foreground">
+                حذف المستند الشخصي
+              </DialogTitle>
+            </div>
+            <DialogDescription className="text-xs text-muted-foreground pt-2 leading-relaxed">
+              هل أنت متأكد من حذف المستند{" "}
+              <span className="font-extrabold text-foreground">
+                {deletingAttachment?.name}
+              </span>
+              ؟ لا يمكن التراجع عن هذا الإجراء.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex items-center justify-end gap-2.5 pt-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeletingAttachment(null)}
+              disabled={isDeleting}
+              className="rounded-xl h-10 px-4 text-xs font-bold cursor-pointer"
+            >
+              إلغاء
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="rounded-xl h-10 px-5 text-xs font-bold gap-2 cursor-pointer"
+            >
+              {isDeleting ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <span>تأكيد الحذف</span>
+              )}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </>
