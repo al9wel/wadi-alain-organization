@@ -15,6 +15,7 @@ export const ROUTES = {
     USERS: "/dashboard/users",
     USER_ATTACHMENTS: "/dashboard/users/attachments",
     ACTIVITY_LOGS: "/dashboard/activity-logs",
+    PROFILE: "/dashboard/profile",
     SETTINGS: "/dashboard/settings",
   },
 } as const;

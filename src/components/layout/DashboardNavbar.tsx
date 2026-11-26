@@ -12,6 +12,9 @@ export function DashboardNavbar() {
     if (location.pathname === ROUTES.DASHBOARD.SETTINGS) {
       return "الإعدادات";
     }
+    if (location.pathname === ROUTES.DASHBOARD.PROFILE) {
+      return "الملف الشخصي";
+    }
     if (location.pathname === ROUTES.DASHBOARD.USER_ATTACHMENTS) {
       return "ملحقات المستخدمين";
     }

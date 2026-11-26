@@ -11,6 +11,7 @@ export const useUpdateUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["users", "stats"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
   });
 };
